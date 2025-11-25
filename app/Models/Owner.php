@@ -1,0 +1,146 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Owner extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    /**
+     * Las 8 comunidades de la asociación de agua
+     */
+    const COMMUNITIES = [
+        'La Pandeadura',
+        'La Puerta',
+        'Loma Larga',
+        'Rodeo 1',
+        'Rodeo 2',
+        'San Francisco',
+        'San Rafael',
+        'San Rafael (Los Pinos)',
+    ];
+
+    /**
+     * Mapeo de colores Tailwind para cada comunidad
+     */
+    const COMMUNITY_COLORS = [
+        'La Pandeadura' => 'yellow',
+        'La Puerta' => 'orange',
+        'Loma Larga' => 'purple',
+        'Rodeo 1' => 'red',
+        'Rodeo 2' => 'pink',
+        'San Francisco' => 'green',
+        'San Rafael' => 'blue',
+        'San Rafael (Los Pinos)' => 'cyan',
+    ];
+
+    /**
+     * Los atributos que se pueden asignar en masa.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'dui',
+        'phone',
+        'address',
+        'community',
+    ];
+
+    /**
+     * Los atributos que deben ser casteados.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
+
+    /**
+     * Accessor para obtener el DUI formateado con guion
+     *
+     * @return string|null
+     */
+    public function getFormattedDuiAttribute(): ?string
+    {
+        return formatDui($this->dui);
+    }
+
+    /**
+     * Accessor para obtener el teléfono formateado con guion
+     *
+     * @return string|null
+     */
+    public function getFormattedPhoneAttribute(): ?string
+    {
+        return formatPhone($this->phone);
+    }
+
+    /**
+     * Scope para buscar propietarios por nombre o DUI
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string|null $search
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSearch($query, ?string $search)
+    {
+        if (!$search) {
+            return $query;
+        }
+
+        // Remover guiones del término de búsqueda para DUI
+        $searchClean = str_replace('-', '', $search);
+
+        return $query->where(function ($q) use ($search, $searchClean) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('dui', 'like', "%{$searchClean}%");
+        });
+    }
+
+    /**
+     * Scope para filtrar por comunidad
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string|null $community
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByCommunity($query, ?string $community)
+    {
+        if (!$community) {
+            return $query;
+        }
+
+        return $query->where('community', $community);
+    }
+
+    /**
+     * Scope para obtener solo propietarios activos
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeActive($query)
+    {
+        return $query->whereNull('deleted_at');
+    }
+
+    /**
+     * Relación con pajas de agua (water connections)
+     * Esta relación será implementada cuando se cree el modelo WaterConnection
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function waterConnections(): HasMany
+    {
+        // return $this->hasMany(WaterConnection::class);
+        
+        // Placeholder hasta que se cree el modelo WaterConnection
+        return $this->hasMany(self::class);
+    }
+}

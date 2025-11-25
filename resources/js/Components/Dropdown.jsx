@@ -1,6 +1,7 @@
 import { Transition } from '@headlessui/react';
 import { Link } from '@inertiajs/react';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
+
 
 const DropDownContext = createContext();
 
@@ -38,17 +39,47 @@ const Trigger = ({ children }) => {
 const Content = ({
     align = 'right',
     width = '48',
+    direction = 'down',
     contentClasses = 'py-1 bg-white',
     children,
 }) => {
     const { open, setOpen } = useContext(DropDownContext);
+    const [position, setPosition] = useState({ top: 0, left: 0, right: 0 });
+    const contentRef = useRef(null);
+
+    useEffect(() => {
+        if (open && contentRef.current) {
+            const trigger = contentRef.current.parentElement;
+            const rect = trigger.getBoundingClientRect();
+            
+            let newPosition = {};
+            
+            if (direction === 'up') {
+                newPosition.bottom = window.innerHeight - rect.top + 8;
+            } else {
+                newPosition.top = rect.bottom + 8;
+            }
+            
+            if (align === 'left') {
+                newPosition.left = rect.left;
+            } else if (align === 'right') {
+                newPosition.right = window.innerWidth - rect.right;
+            }
+            
+            setPosition(newPosition);
+        }
+    }, [open, align, direction]);
 
     let alignmentClasses = 'origin-top';
 
     if (align === 'left') {
-        alignmentClasses = 'ltr:origin-top-left rtl:origin-top-right start-0';
+        alignmentClasses = direction === 'up' 
+            ? 'origin-bottom-left' 
+            : 'origin-top-left';
     } else if (align === 'right') {
-        alignmentClasses = 'ltr:origin-top-right rtl:origin-top-left end-0';
+        alignmentClasses = direction === 'up'
+            ? 'origin-bottom-right'
+            : 'origin-top-right';
     }
 
     let widthClasses = '';
@@ -57,8 +88,16 @@ const Content = ({
         widthClasses = 'w-48';
     }
 
+    const positionStyle = {
+        top: position.top !== undefined ? `${position.top}px` : undefined,
+        bottom: position.bottom !== undefined ? `${position.bottom}px` : undefined,
+        left: position.left !== undefined ? `${position.left}px` : undefined,
+        right: position.right !== undefined ? `${position.right}px` : undefined,
+    };
+
     return (
         <>
+            <div ref={contentRef} style={{ position: 'absolute', top: 0, left: 0, width: 0, height: 0 }} />
             <Transition
                 show={open}
                 enter="transition ease-out duration-200"
@@ -69,7 +108,8 @@ const Content = ({
                 leaveTo="opacity-0 scale-95"
             >
                 <div
-                    className={`absolute z-50 mt-2 rounded-md shadow-lg ${alignmentClasses} ${widthClasses}`}
+                    className={`fixed z-[100] rounded-md shadow-lg ${alignmentClasses} ${widthClasses}`}
+                    style={positionStyle}
                     onClick={() => setOpen(false)}
                 >
                     <div

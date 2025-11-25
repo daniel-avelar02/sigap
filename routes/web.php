@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Rutas de propietarios
+    Route::resource('owners', OwnerController::class)->withTrashed(['show', 'edit']);
+    Route::post('/owners/{id}/restore', [OwnerController::class, 'restore'])->name('owners.restore');
+    
+    // API de búsqueda de propietarios
+    Route::get('/api/owners/search', [OwnerController::class, 'search'])->name('owners.search');
 });
 
 require __DIR__.'/auth.php';
