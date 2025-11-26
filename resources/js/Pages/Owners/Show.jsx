@@ -23,9 +23,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import CommunityBadge from '@/Components/CommunityBadge';
+import StatusBadge from '@/Components/StatusBadge';
+import PaymentStatusBadge from '@/Components/PaymentStatusBadge';
 import { formatDui } from '@/Utils/helpers';
 
-export default function Show({ owner, waterConnectionsCount }) {
+export default function Show({ owner, waterConnections = [], waterConnectionsCount, filters = {} }) {
     return (
         <AuthenticatedLayout
             header={
@@ -36,7 +38,7 @@ export default function Show({ owner, waterConnectionsCount }) {
                     <div className="flex gap-3">
                         {!owner.deleted_at && (
                             <Link
-                                href={route('owners.edit', owner.id)}
+                                href={route('owners.edit', [owner.id, filters])}
                                 className="text-sm text-gray-600 hover:text-gray-900"
                             >
                                 Editar
@@ -44,7 +46,7 @@ export default function Show({ owner, waterConnectionsCount }) {
                         )}
                         <p className="text-sm text-gray-600 hover:text-gray-900">|</p>
                         <Link
-                            href={route('owners.index')}
+                            href={route('owners.index', filters)}
                             className="text-sm text-gray-600 hover:text-gray-900"
                         >
                             Volver al listado
@@ -145,9 +147,19 @@ export default function Show({ owner, waterConnectionsCount }) {
                     {/* Pajas de Agua */}
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6">
-                            <h3 className="mb-4 text-lg font-semibold text-gray-900">
-                                Pajas de Agua ({waterConnectionsCount})
-                            </h3>
+                            <div className="mb-4 flex items-center justify-between">
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    Pajas de Agua ({waterConnectionsCount})
+                                </h3>
+                                {!owner.deleted_at && (
+                                    <Link
+                                        href={route('water-connections.create', { owner_id: owner.id })}
+                                        className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+                                    >
+                                        + Nueva paja para este propietario
+                                    </Link>
+                                )}
+                            </div>
 
                             {waterConnectionsCount === 0 ? (
                                 <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
@@ -170,20 +182,80 @@ export default function Show({ owner, waterConnectionsCount }) {
                                     <p className="mt-1 text-sm text-gray-500">
                                         Este propietario aún no tiene pajas de agua registradas.
                                     </p>
-                                    <div className="mt-6">
-                                        <button
-                                            type="button"
-                                            disabled
-                                            className="inline-flex items-center rounded-md bg-gray-200 px-3 py-2 text-sm font-semibold text-gray-500 shadow-sm cursor-not-allowed"
-                                        >
-                                            Agregar paja (próximamente)
-                                        </button>
-                                    </div>
                                 </div>
                             ) : (
-                                <p className="text-sm text-gray-500">
-                                    El listado de pajas de agua se mostrará cuando se implemente el módulo correspondiente.
-                                </p>
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Código
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    N° Propietario
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Comunidad
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Estado
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Pago
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Ubicación
+                                                </th>
+                                                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Acciones
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200 bg-white">
+                                            {waterConnections.map((wc) => (
+                                                <tr key={wc.id} className="hover:bg-gray-50">
+                                                    <td className="whitespace-nowrap px-4 py-3">
+                                                        <Link
+                                                            href={route('water-connections.show', wc.id)}
+                                                            className="font-semibold text-indigo-600 hover:text-indigo-800"
+                                                        >
+                                                            {wc.code}
+                                                        </Link>
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
+                                                        {wc.owner_number || (
+                                                            <span className="italic text-gray-400">N/A</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-4 py-3">
+                                                        <CommunityBadge community={wc.community} size="sm" />
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-4 py-3">
+                                                        <StatusBadge status={wc.status} size="sm" />
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-4 py-3">
+                                                        <PaymentStatusBadge paymentStatus={wc.payment_status} size="sm" />
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm text-gray-500">
+                                                        <div className="max-w-xs truncate">
+                                                            {wc.location_description || (
+                                                                <span className="italic text-gray-400">No especificada</span>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
+                                                        <Link
+                                                            href={route('water-connections.show', wc.id)}
+                                                            className="text-indigo-600 hover:text-indigo-800"
+                                                        >
+                                                            Ver detalles →
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             )}
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\OwnerController;
+use App\Http\Controllers\WaterConnectionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,13 @@ Route::middleware('auth')->group(function () {
     
     // API de búsqueda de propietarios
     Route::get('/api/owners/search', [OwnerController::class, 'search'])->name('owners.search');
+
+    // Rutas de pajas de agua
+    Route::resource('water-connections', WaterConnectionController::class)->withTrashed(['show', 'edit']);
+    Route::post('/water-connections/{id}/restore', [WaterConnectionController::class, 'restore'])->name('water-connections.restore');
+    
+    // API de búsqueda de pajas de agua
+    Route::get('/api/water-connections/search', [WaterConnectionController::class, 'search'])->name('water-connections.search');
 });
 
 require __DIR__.'/auth.php';

@@ -132,15 +132,11 @@ class Owner extends Model
 
     /**
      * Relación con pajas de agua (water connections)
-     * Esta relación será implementada cuando se cree el modelo WaterConnection
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function waterConnections(): HasMany
     {
-        // return $this->hasMany(WaterConnection::class);
-        
-        // Placeholder hasta que se cree el modelo WaterConnection
-        return $this->hasMany(self::class);
+        return $this->hasMany(WaterConnection::class);
     }
 }

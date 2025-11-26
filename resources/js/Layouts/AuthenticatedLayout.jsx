@@ -36,6 +36,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Propietarios
                                 </NavLink>
+                                <NavLink
+                                    href={route('water-connections.index')}
+                                    active={route().current('water-connections.*')}
+                                >
+                                    Pajas de Agua
+                                </NavLink>
                             </div>
                         </div>
 
@@ -145,6 +151,12 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('owners.*')}
                         >
                             Propietarios
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('water-connections.index')}
+                            active={route().current('water-connections.*')}
+                        >
+                            Pajas de Agua
                         </ResponsiveNavLink>
                     </div>
 

@@ -81,12 +81,13 @@ class OwnerController extends Controller
      */
     public function show(Request $request, Owner $owner): Response
     {
-        // Cargar la relación de pajas cuando esté implementada
-        // $owner->load('waterConnections');
+        // Cargar las pajas de agua del propietario
+        $owner->load('waterConnections');
         
         return Inertia::render('Owners/Show', [
             'owner' => $owner,
-            'waterConnectionsCount' => 0, // Placeholder
+            'waterConnections' => $owner->waterConnections()->latest()->get(),
+            'waterConnectionsCount' => $owner->waterConnections()->count(),
             'filters' => $request->only(['search', 'community', 'status']),
         ]);
     }
