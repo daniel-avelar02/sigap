@@ -141,7 +141,7 @@ export default function Create({ communities, filters = {} }) {
                                 {/* Botones */}
                                 <div className="flex items-center justify-end gap-4">
                                     <Link
-                                        href={route('owners.index')}
+                                        href={route('owners.index', filters)}
                                         className="text-sm text-gray-600 hover:text-gray-900"
                                     >
                                         Cancelar
