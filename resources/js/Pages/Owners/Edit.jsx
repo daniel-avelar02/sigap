@@ -36,6 +36,7 @@ export default function Edit({ owner, communities, filters = {} }) {
         name: owner.name || '',
         dui: owner.dui || '',
         phone: owner.phone || '',
+        email: owner.email || '',
         address: owner.address || '',
         community: owner.community || '',
     });
@@ -107,6 +108,20 @@ export default function Edit({ owner, communities, filters = {} }) {
                                         required
                                     />
                                     <InputError message={errors.phone} className="mt-2" />
+                                </div>
+
+                                {/* Correo electrónico */}
+                                <div>
+                                    <InputLabel htmlFor="email" value="Correo electrónico (opcional)" />
+                                    <TextInput
+                                        id="email"
+                                        type="email"
+                                        value={data.email}
+                                        onChange={(e) => setData('email', e.target.value)}
+                                        className="mt-1 block w-full"
+                                        placeholder="ejemplo@correo.com"
+                                    />
+                                    <InputError message={errors.email} className="mt-2" />
                                 </div>
 
                                 {/* Dirección */}

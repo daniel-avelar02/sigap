@@ -33,6 +33,7 @@ class OwnerRequest extends FormRequest
                 Rule::unique('owners', 'dui')->ignore($ownerId),
             ],
             'phone' => ['required', 'digits:8'],
+            'email' => ['nullable', 'email', 'max:255'],
             'address' => ['nullable', 'string'],
             'community' => ['required', 'string', Rule::in(Owner::COMMUNITIES)],
         ];
@@ -49,6 +50,7 @@ class OwnerRequest extends FormRequest
             'name' => 'nombre',
             'dui' => 'DUI',
             'phone' => 'teléfono',
+            'email' => 'correo electrónico',
             'address' => 'dirección',
             'community' => 'comunidad',
         ];
@@ -65,6 +67,7 @@ class OwnerRequest extends FormRequest
             'dui.digits' => 'El DUI debe tener exactamente 9 dígitos.',
             'dui.unique' => 'Este DUI ya está registrado en el sistema.',
             'phone.digits' => 'El teléfono debe tener exactamente 8 dígitos.',
+            'email.email' => 'El correo electrónico debe ser una dirección válida.',
             'community.in' => 'La comunidad seleccionada no es válida.',
         ];
     }

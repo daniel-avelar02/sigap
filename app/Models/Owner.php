@@ -48,6 +48,7 @@ class Owner extends Model
         'name',
         'dui',
         'phone',
+        'email',
         'address',
         'community',
     ];

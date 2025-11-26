@@ -32,6 +32,7 @@ export default function Create({ communities, filters = {} }) {
         name: '',
         dui: '',
         phone: '',
+        email: '',
         address: '',
         community: '',
     });
@@ -103,6 +104,20 @@ export default function Create({ communities, filters = {} }) {
                                         required
                                     />
                                     <InputError message={errors.phone} className="mt-2" />
+                                </div>
+
+                                {/* Correo electrónico */}
+                                <div>
+                                    <InputLabel htmlFor="email" value="Correo electrónico (opcional)" />
+                                    <TextInput
+                                        id="email"
+                                        type="email"
+                                        value={data.email}
+                                        onChange={(e) => setData('email', e.target.value)}
+                                        className="mt-1 block w-full"
+                                        placeholder="ejemplo@correo.com"
+                                    />
+                                    <InputError message={errors.email} className="mt-2" />
                                 </div>
 
                                 {/* Dirección */}

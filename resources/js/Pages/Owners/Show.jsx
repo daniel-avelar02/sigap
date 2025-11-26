@@ -95,6 +95,15 @@ export default function Show({ owner, waterConnections = [], waterConnectionsCou
 
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">
+                                        Correo electrónico
+                                    </dt>
+                                    <dd className="mt-1 text-sm text-gray-900">
+                                        {owner.email || 'No especificado'}
+                                    </dd>
+                                </div>
+
+                                <div>
+                                    <dt className="text-sm font-medium text-gray-500">
                                         Comunidad
                                     </dt>
                                     <dd className="mt-1">

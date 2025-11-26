@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('dui', 9)->unique();
             $table->string('phone', 8);
+            $table->string('email')->nullable();
             $table->text('address')->nullable();
             $table->enum('community', [
                 'La Pandeadura',
