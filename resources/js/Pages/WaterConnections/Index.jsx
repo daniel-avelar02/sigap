@@ -354,10 +354,10 @@ export default function Index({ waterConnections, filters, communities, statuses
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="text-sm font-medium text-gray-900 whitespace-normal">
-                                                        {wc.owner.name}
+                                                        {wc.owner?.name || <span className="italic text-gray-400">Sin propietario</span>}
                                                     </div>
                                                     <div className="text-xs text-gray-500">
-                                                        {wc.owner.formatted_dui}
+                                                        {wc.owner?.formatted_dui || '-'}
                                                     </div>
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4">
