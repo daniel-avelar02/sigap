@@ -56,7 +56,7 @@ export default function Edit({ owner, communities, filters = {} }) {
                         href={route('owners.index', filters)}
                         className="text-sm text-gray-600 hover:text-gray-900"
                     >
-                        ← Volver al listado
+                        ← Volver al listado de propietarios
                     </Link>
                 </div>
             }

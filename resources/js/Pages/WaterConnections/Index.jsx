@@ -23,6 +23,7 @@ import CommunityBadge from '@/Components/CommunityBadge';
 import StatusBadge from '@/Components/StatusBadge';
 import PaymentStatusBadge from '@/Components/PaymentStatusBadge';
 import ConfirmModal from '@/Components/ConfirmModal';
+import { formatDui } from '@/Utils/helpers';
 
 export default function Index({ waterConnections, filters, communities, statuses, paymentStatuses, paymentStatusLabels }) {
     const [search, setSearch] = useState(filters.search || '');
@@ -357,7 +358,7 @@ export default function Index({ waterConnections, filters, communities, statuses
                                                         {wc.owner?.name || <span className="italic text-gray-400">Sin propietario</span>}
                                                     </div>
                                                     <div className="text-xs text-gray-500">
-                                                        {wc.owner?.formatted_dui || '-'}
+                                                        {formatDui(wc.owner?.dui) || '-'}
                                                     </div>
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4">

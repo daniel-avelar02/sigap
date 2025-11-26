@@ -60,7 +60,7 @@ export default function Create({ communities, statuses, filters = {}, preselecte
                         href={route('water-connections.index', filters)}
                         className="text-sm text-gray-600 hover:text-gray-900"
                     >
-                        ← Volver al listado
+                        ← Volver al listado de pajas de agua
                     </Link>
                 </div>
             }

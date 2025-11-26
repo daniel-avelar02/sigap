@@ -17,6 +17,7 @@ import { Head, Link } from '@inertiajs/react';
 import CommunityBadge from '@/Components/CommunityBadge';
 import StatusBadge from '@/Components/StatusBadge';
 import PaymentStatusBadge from '@/Components/PaymentStatusBadge';
+import { formatDui } from '@/Utils/helpers';
 
 export default function Show({ waterConnection, filters = {} }) {
     const formattedDate = new Date(waterConnection.created_at).toLocaleDateString('es-SV', {
@@ -33,7 +34,7 @@ export default function Show({ waterConnection, filters = {} }) {
                         Detalles de Paja de Agua
                     </h2>
                     <div className="flex gap-3">
-                        {waterConnection.status === 'activa' && (
+                        {/* {waterConnection.status === 'activa' && (
                             <>
                                 <Link
                                     href={route('water-connections.edit', [waterConnection.id, filters])}
@@ -43,12 +44,12 @@ export default function Show({ waterConnection, filters = {} }) {
                                 </Link>
                                 <p className="text-sm text-gray-600">|</p>
                             </>
-                        )}
+                        )} */}
                         <Link
                             href={route('water-connections.index', filters)}
                             className="text-sm text-gray-600 hover:text-gray-900"
                         >
-                            Volver al listado
+                            ← Volver al listado de pajas de agua
                         </Link>
                     </div>
                 </div>
@@ -175,7 +176,7 @@ export default function Show({ waterConnection, filters = {} }) {
                                         DUI
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                        {waterConnection.owner.formatted_dui}
+                                        {formatDui(waterConnection.owner.dui)}
                                     </dd>
                                 </div>
 
@@ -184,7 +185,7 @@ export default function Show({ waterConnection, filters = {} }) {
                                         Teléfono
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                        {waterConnection.owner.formatted_phone}
+                                        {waterConnection.owner.phone}
                                     </dd>
                                 </div>
 

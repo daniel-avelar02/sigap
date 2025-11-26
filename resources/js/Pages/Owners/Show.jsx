@@ -36,7 +36,7 @@ export default function Show({ owner, waterConnections = [], waterConnectionsCou
                         Detalles del Propietario
                     </h2>
                     <div className="flex gap-3">
-                        {!owner.deleted_at && (
+                        {/* {!owner.deleted_at && (
                             <Link
                                 href={route('owners.edit', [owner.id, filters])}
                                 className="text-sm text-gray-600 hover:text-gray-900"
@@ -44,12 +44,12 @@ export default function Show({ owner, waterConnections = [], waterConnectionsCou
                                 Editar
                             </Link>
                         )}
-                        <p className="text-sm text-gray-600 hover:text-gray-900">|</p>
+                        <p className="text-sm text-gray-600 hover:text-gray-900">|</p> */}
                         <Link
                             href={route('owners.index', filters)}
                             className="text-sm text-gray-600 hover:text-gray-900"
                         >
-                            Volver al listado
+                            ← Volver al listado de propietarios
                         </Link>
                     </div>
                 </div>
@@ -151,14 +151,15 @@ export default function Show({ owner, waterConnections = [], waterConnectionsCou
                                 <h3 className="text-lg font-semibold text-gray-900">
                                     Pajas de Agua ({waterConnectionsCount})
                                 </h3>
-                                {!owner.deleted_at && (
+                                {/* Pendiente por implementar la creación de pajas de agua desde aquí */}
+                                {/* {!owner.deleted_at && (
                                     <Link
                                         href={route('water-connections.create', { owner_id: owner.id })}
                                         className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
                                     >
                                         + Nueva paja para este propietario
                                     </Link>
-                                )}
+                                )} */}
                             </div>
 
                             {waterConnectionsCount === 0 ? (
