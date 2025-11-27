@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MonthlyPaymentController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\WaterConnectionController;
 use App\Http\Controllers\ProfileController;
@@ -38,8 +39,14 @@ Route::middleware('auth')->group(function () {
     // API de búsqueda de pajas de agua
     Route::get('/api/water-connections/search', [WaterConnectionController::class, 'search'])->name('water-connections.search');
     
+    // API para búsqueda de pajas para punto de cobro
+    Route::get('/api/water-connections/search-for-payment', [WaterConnectionController::class, 'searchForPayment'])->name('water-connections.search-payment');
+    
     // API para obtener números de propietario por comunidad
     Route::get('/api/water-connections/owner-numbers-by-community', [WaterConnectionController::class, 'getOwnerNumbersByCommunity'])->name('water-connections.owner-numbers-by-community');
+
+    // Rutas de pagos mensuales
+    Route::resource('monthly-payments', MonthlyPaymentController::class)->only(['index', 'create', 'store', 'show']);
 });
 
 require __DIR__.'/auth.php';

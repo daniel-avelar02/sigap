@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\Carbon;
 
 class WaterConnection extends Model
 {
@@ -92,6 +94,18 @@ class WaterConnection extends Model
     public function owner(): BelongsTo
     {
         return $this->belongsTo(Owner::class);
+    }
+
+    /**
+     * Relación: Una paja de agua tiene muchos pagos mensuales
+     *
+     * @return HasMany
+     */
+    public function monthlyPayments(): HasMany
+    {
+        return $this->hasMany(MonthlyPayment::class)
+                    ->orderByDesc('payment_year')
+                    ->orderByDesc('payment_month');
     }
 
     /**
@@ -198,7 +212,14 @@ class WaterConnection extends Model
     /**
      * Actualiza el estado de pago basado en los pagos pendientes
      * 
-     * Este método será invocado desde el módulo de Cobros cuando se registren o eliminen pagos.
+     * Calcula los meses desde la fecha MÁS RECIENTE entre:
+     * - Fecha de inicio de cobros del sistema (2025-01-01) para pajas antiguas migradas
+     * - Fecha de creación (created_at) para pajas nuevas creadas en producción
+     * 
+     * Esto permite:
+     * - Pajas migradas: No cobrar deudas históricas (se manejan en Otros Pagos)
+     * - Pajas nuevas: Cobrar todos los meses desde su creación
+     * 
      * Los estados de pago pueden combinarse (excepto 'al_dia'):
      * - 'al_dia': No tiene ninguna mora (exclusivo, no se combina)
      * - 'en_mora': Cuota mensual pendiente
@@ -209,16 +230,86 @@ class WaterConnection extends Model
      */
     public function updatePaymentStatus(): void
     {
-        // TODO: Implementar lógica completa cuando se cree el módulo de Cobros
-        // Esta es una implementación placeholder que será completada después
+        // Obtener el array actual de estados de pago
+        $currentStatuses = $this->payment_status ?? [];
         
-        // Ejemplo de lógica a implementar:
-        // $statuses = [];
-        // if (tiene_pagos_mensuales_pendientes) $statuses[] = 'en_mora';
-        // if (tiene_cuotas_medidor_pendientes) $statuses[] = 'en_mora_medidor';
-        // if (tiene_cuotas_instalacion_pendientes) $statuses[] = 'en_mora_instalacion';
-        // if (empty($statuses)) $statuses = ['al_dia'];
-        // $this->update(['payment_status' => $statuses]);
+        // Remover 'al_dia' y 'en_mora' del array (los recalcularemos)
+        $otherStatuses = array_filter($currentStatuses, function($status) {
+            return !in_array($status, ['al_dia', 'en_mora']);
+        });
+
+        // Calcular si hay meses pendientes
+        $hasPendingMonths = $this->hasPendingMonthlyPayments();
+
+        // Construir el nuevo array de estados
+        $newStatuses = [];
+
+        // Si hay meses pendientes, agregar 'en_mora'
+        if ($hasPendingMonths) {
+            $newStatuses[] = 'en_mora';
+        }
+
+        // Agregar los otros estados (mora medidor, mora instalación)
+        $newStatuses = array_merge($newStatuses, array_values($otherStatuses));
+
+        // Si no hay ningún estado de mora, poner 'al_dia'
+        if (empty($newStatuses)) {
+            $newStatuses = ['al_dia'];
+        }
+
+        // Actualizar el estado de pago
+        $this->update(['payment_status' => $newStatuses]);
+    }
+
+    /**
+     * Verifica si hay meses pendientes de pago.
+     * 
+     * Calcula desde la fecha MÁS RECIENTE entre:
+     * - La fecha de inicio de cobros del sistema (para pajas migradas)
+     * - La fecha de creación de la paja (para pajas nuevas)
+     * 
+     * Esto permite manejar deudas históricas por separado en pajas antiguas,
+     * pero cobrar correctamente desde la creación en pajas nuevas.
+     *
+     * @return bool
+     */
+    private function hasPendingMonthlyPayments(): bool
+    {
+        // Obtener fecha de inicio de cobros del sistema y fecha de creación de la paja
+        $systemBillingStartDate = Carbon::parse(SystemSetting::getMonthlyBillingStartDate());
+        $pajaCreatedDate = Carbon::parse($this->created_at);
+        $currentDate = Carbon::now();
+
+        // Usar la fecha MÁS RECIENTE (la que ocurrió después)
+        $billingStartDate = $pajaCreatedDate->gt($systemBillingStartDate) 
+            ? $pajaCreatedDate 
+            : $systemBillingStartDate;
+
+        // Obtener todos los pagos de esta paja
+        $paidMonths = $this->monthlyPayments()
+            ->get()
+            ->map(function($payment) {
+                return $payment->payment_year . '-' . str_pad($payment->payment_month, 2, '0', STR_PAD_LEFT);
+            })
+            ->toArray();
+
+        // Generar lista de todos los meses que deberían estar pagados
+        $requiredMonths = [];
+        $checkDate = $billingStartDate->copy()->startOfMonth();
+        
+        while ($checkDate <= $currentDate) {
+            $requiredMonths[] = $checkDate->format('Y-m');
+            $checkDate->addMonth();
+        }
+
+        // Verificar si hay algún mes requerido que no está pagado
+        foreach ($requiredMonths as $requiredMonth) {
+            if (!in_array($requiredMonth, $paidMonths)) {
+                return true; // Hay al menos un mes pendiente
+            }
+        }
+
+        return false; // Todos los meses están pagados
     }
 
     /**

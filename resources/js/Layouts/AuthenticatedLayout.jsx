@@ -42,6 +42,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Pajas de Agua
                                 </NavLink>
+                                <NavLink
+                                    href={route('monthly-payments.create')}
+                                    active={route().current('monthly-payments.*')}
+                                >
+                                    Cobros Mensuales
+                                </NavLink>
                             </div>
                         </div>
 
@@ -157,6 +163,12 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('water-connections.*')}
                         >
                             Pajas de Agua
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('monthly-payments.create')}
+                            active={route().current('monthly-payments.*')}
+                        >
+                            Cobros Mensuales
                         </ResponsiveNavLink>
                     </div>
 

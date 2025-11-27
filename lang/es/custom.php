@@ -20,6 +20,8 @@ return [
 
     'water_connections' => 'Pajas de Agua',
     'owners' => 'Propietarios',
+    'monthly_payments' => 'Cobros Mensuales',
+    'monthly_payment' => 'Cobro Mensual',
     'community' => 'Comunidad',
     'communities' => 'Comunidades',
 
@@ -65,8 +67,25 @@ return [
     'updated_successfully' => ':resource actualizado exitosamente.',
     'deleted_successfully' => ':resource eliminado exitosamente.',
     'restored_successfully' => ':resource restaurado exitosamente.',
+    'payment_registered' => 'Pago registrado exitosamente.',
     'no_records' => 'No se encontraron registros.',
     'confirm_delete' => '¿Está seguro de que desea eliminar este elemento?',
     'confirm_restore' => '¿Está seguro de que desea restaurar este elemento?',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Campos de Pagos Mensuales
+    |--------------------------------------------------------------------------
+    */
+
+    'payment_month' => 'Mes de Pago',
+    'payment_year' => 'Año',
+    'receipt_number' => 'Número de Recibo',
+    'payer_name' => 'Nombre del Pagador',
+    'payer_dui' => 'DUI del Pagador',
+    'monthly_fee' => 'Cuota Mensual',
+    'pending_months' => 'Meses Pendientes',
+    'payment_date' => 'Fecha de Pago',
+    'system_settings' => 'Configuración del Sistema',
 
 ];

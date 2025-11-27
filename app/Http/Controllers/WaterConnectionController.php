@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\WaterConnection;
 use App\Models\Owner;
+use App\Models\SystemSetting;
 use App\Http\Requests\WaterConnectionRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -288,4 +289,119 @@ class WaterConnectionController extends Controller
         // Formatear con ceros a la izquierda
         return 'WC-' . str_pad($newNumber, 5, '0', STR_PAD_LEFT);
     }
+
+    /**
+     * Buscar paja de agua para punto de cobro.
+     * Retorna la paja con su propietario, últimos pagos y meses pendientes.
+     */
+    public function searchForPayment(Request $request)
+    {
+        $search = $request->input('query', '');
+        
+        if (strlen($search) < 1) {
+            return response()->json([]);
+        }
+
+        $waterConnections = WaterConnection::with(['owner', 'monthlyPayments' => function ($query) {
+                $query->orderByDesc('payment_year')
+                      ->orderByDesc('payment_month')
+                      ->limit(12);
+            }])
+            ->search($search)
+            ->where('status', 'activa')
+            ->limit(10)
+            ->get()
+            ->map(function ($waterConnection) {
+                // Calcular meses pendientes
+                $pendingMonths = $this->calculatePendingMonths($waterConnection);
+
+                return [
+                    'id' => $waterConnection->id,
+                    'code' => $waterConnection->code,
+                    'owner_number' => $waterConnection->owner_number,
+                    'community' => $waterConnection->community,
+                    'location_description' => $waterConnection->location_description,
+                    'status' => $waterConnection->status,
+                    'payment_status' => $waterConnection->payment_status,
+                    'owner' => [
+                        'id' => $waterConnection->owner->id,
+                        'name' => $waterConnection->owner->name,
+                        'dui' => $waterConnection->owner->dui,
+                        'formatted_dui' => $waterConnection->owner->formatted_dui,
+                        'phone' => $waterConnection->owner->phone,
+                        'formatted_phone' => $waterConnection->owner->formatted_phone,
+                        'email' => $waterConnection->owner->email,
+                    ],
+                    'recent_payments' => $waterConnection->monthlyPayments->map(function ($payment) {
+                        return [
+                            'id' => $payment->id,
+                            'payment_month' => $payment->payment_month,
+                            'payment_year' => $payment->payment_year,
+                            'payment_period' => $payment->payment_period,
+                            'payment_date' => $payment->payment_date->format('d/m/Y'),
+                            'total_amount' => $payment->total_amount,
+                            'receipt_number' => $payment->receipt_number,
+                        ];
+                    }),
+                    'pending_months' => $pendingMonths,
+                    'has_pending_months' => count($pendingMonths) > 0,
+                ];
+            });
+
+        return response()->json($waterConnections);
+    }
+
+    /**
+     * Calcular los meses pendientes de pago para una paja.
+     * 
+     * Los cobros inician desde la fecha MÁS RECIENTE entre:
+     * - La fecha de inicio de cobros del sistema (para pajas migradas históricamente)
+     * - La fecha de creación de la paja (para pajas nuevas creadas en producción)
+     * 
+     * Esto permite:
+     * - Pajas antiguas migradas: No cobrar deudas históricas (solo desde 2025)
+     * - Pajas nuevas: Cobrar desde que fueron creadas
+     */
+    private function calculatePendingMonths(WaterConnection $waterConnection): array
+    {
+        // Obtener fecha de inicio de cobros mensuales desde configuración
+        $systemBillingStartDate = \Carbon\Carbon::parse(SystemSetting::getMonthlyBillingStartDate());
+        $pajaCreatedDate = \Carbon\Carbon::parse($waterConnection->created_at);
+        $currentDate = \Carbon\Carbon::now();
+
+        // Usar la fecha MÁS RECIENTE (la que ocurrió después)
+        // Si la paja se creó después del inicio de cobros del sistema, usar created_at
+        // Si la paja se creó antes (migrada), usar la fecha del sistema
+        $billingStartDate = $pajaCreatedDate->gt($systemBillingStartDate) 
+            ? $pajaCreatedDate 
+            : $systemBillingStartDate;
+
+        // Obtener meses ya pagados
+        $paidMonths = $waterConnection->monthlyPayments
+            ->map(function($payment) {
+                return $payment->payment_year . '-' . str_pad($payment->payment_month, 2, '0', STR_PAD_LEFT);
+            })
+            ->toArray();
+
+        // Generar lista de meses requeridos desde la fecha efectiva de inicio
+        $pendingMonths = [];
+        $checkDate = $billingStartDate->copy()->startOfMonth();
+        
+        while ($checkDate <= $currentDate) {
+            $monthKey = $checkDate->format('Y-m');
+            
+            if (!in_array($monthKey, $paidMonths)) {
+                $pendingMonths[] = [
+                    'month' => $checkDate->month,
+                    'year' => $checkDate->year,
+                    'period' => $checkDate->locale('es')->isoFormat('MMMM YYYY'),
+                ];
+            }
+            
+            $checkDate->addMonth();
+        }
+
+        return $pendingMonths;
+    }
 }
+
