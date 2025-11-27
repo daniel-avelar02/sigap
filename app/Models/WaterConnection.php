@@ -109,6 +109,31 @@ class WaterConnection extends Model
     }
 
     /**
+     * Relación: Una paja de agua tiene muchos planes de cuotas
+     *
+     * @return HasMany
+     */
+    public function installmentPlans(): HasMany
+    {
+        return $this->hasMany(InstallmentPlan::class)->orderByDesc('created_at');
+    }
+
+    /**
+     * Cancelar todos los planes activos (al eliminar la paja).
+     *
+     * @param string $reason
+     * @return void
+     */
+    public function cancelActivePlans(string $reason = 'Paja de agua eliminada'): void
+    {
+        $this->installmentPlans()
+             ->where('status', 'active')
+             ->each(function($plan) use ($reason) {
+                 $plan->cancel($reason, auth()->id());
+             });
+    }
+
+    /**
      * Scope para buscar pajas de agua por código, número de propietario, nombre o DUI del propietario
      *
      * @param \Illuminate\Database\Eloquent\Builder $query

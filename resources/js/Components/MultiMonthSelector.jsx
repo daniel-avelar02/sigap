@@ -83,7 +83,7 @@ export default function MultiMonthSelector({
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
                 <InputLabel value="Seleccione los meses a pagar" />
                 <button
                     type="button"
@@ -92,7 +92,7 @@ export default function MultiMonthSelector({
                 >
                     {selectAll ? 'Deseleccionar todos' : 'Seleccionar todos'}
                 </button>
-            </div>
+            </div> */}
 
             {/* Meses Pendientes (Atrasos) */}
             {pendingOnly.length > 0 && (
@@ -157,7 +157,7 @@ export default function MultiMonthSelector({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                         <span>
-                            {showFutureMonths ? 'Ocultar' : 'Mostrar'} pagos adelantados ({futureOnly.length} meses disponibles)
+                            {showFutureMonths ? 'Ocultar' : 'Mostrar'} pagos futuros ({futureOnly.length} meses disponibles)
                         </span>
                     </button>
 
@@ -221,9 +221,9 @@ export default function MultiMonthSelector({
                             <p className="text-sm text-indigo-700">
                                 {selectedMonths.length} {selectedMonths.length === 1 ? 'mes seleccionado' : 'meses seleccionados'}
                             </p>
-                            <p className="text-xs text-indigo-600 mt-1">
+                            {/* <p className="text-xs text-indigo-600 mt-1">
                                 Se generará un recibo por cada mes
-                            </p>
+                            </p> */}
                         </div>
                         <div className="text-right">
                             <p className="text-sm text-indigo-700">Total a pagar:</p>

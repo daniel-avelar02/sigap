@@ -152,7 +152,8 @@ export default function Create({ monthlyFee, currentMonth, currentYear }) {
                                 </div>                    
 
                                 {/* Últimos Pagos */}
-                                {selectedWaterConnection.recent_payments.length > 0 && (
+                                
+                                {/* {selectedWaterConnection.recent_payments.length > 0 && (
                                     <div className="mt-6">
                                         <h4 className="text-sm font-medium text-gray-700 mb-3">
                                             Últimos Pagos Registrados
@@ -209,7 +210,7 @@ export default function Create({ monthlyFee, currentMonth, currentYear }) {
                                             </table>
                                         </div>
                                     </div>
-                                )}
+                                )} */}
                             </div>
 
                             {/* Formulario de Pago */}
@@ -263,7 +264,7 @@ export default function Create({ monthlyFee, currentMonth, currentYear }) {
                                         </p>
                                     </div>
 
-                                    <div className="border-t border-gray-200 pt-6">
+                                    {/* <div className="border-t border-gray-200 pt-6">
                                         <h4 className="text-sm font-medium text-gray-700 mb-4">
                                             Monto del Pago
                                         </h4>
@@ -297,7 +298,7 @@ export default function Create({ monthlyFee, currentMonth, currentYear }) {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> */}
 
                                     <div>
                                         <InputLabel htmlFor="notes" value="Observaciones (opcional)" />

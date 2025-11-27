@@ -74,11 +74,11 @@ export default function Create({ communities, statuses, filters = {}, preselecte
                         <form onSubmit={submit} className="p-6">
                             <div className="space-y-6">
                                 {/* Nota sobre código automático */}
-                                <div className="rounded-md bg-blue-50 p-4">
+                                {/* <div className="rounded-md bg-blue-50 p-4">
                                     <p className="text-sm text-blue-700">
                                         <strong>Nota:</strong> El código de la paja (WC-XXXXX) se generará automáticamente al crear el registro.
                                     </p>
-                                </div>
+                                </div> */}
 
                                 {/* Propietario */}
                                 <div>

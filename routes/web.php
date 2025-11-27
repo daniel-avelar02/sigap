@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\InstallmentPlanController;
 use App\Http\Controllers\MonthlyPaymentController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\WaterConnectionController;
@@ -47,6 +48,21 @@ Route::middleware('auth')->group(function () {
 
     // Rutas de pagos mensuales
     Route::resource('monthly-payments', MonthlyPaymentController::class)->only(['index', 'create', 'store', 'show']);
+
+    // Rutas de planes de cuotas
+    Route::resource('installment-plans', InstallmentPlanController::class)->withTrashed(['show', 'edit']);
+    Route::post('/installment-plans/{id}/restore', [InstallmentPlanController::class, 'restore'])->name('installment-plans.restore');
+    Route::post('/installment-plans/{installment_plan}/cancel', [InstallmentPlanController::class, 'cancel'])->name('installment-plans.cancel');
+    Route::post('/installment-plans/{installment_plan}/reactivate', [InstallmentPlanController::class, 'reactivate'])->name('installment-plans.reactivate');
+    
+    // Rutas de pagos de cuotas
+    Route::get('/installment-plans/{installment_plan}/create-payment', [InstallmentPlanController::class, 'createPayment'])->name('installment-plans.create-payment');
+    Route::post('/installment-plans/{installment_plan}/payments', [InstallmentPlanController::class, 'storePayment'])->name('installment-plans.store-payment');
+    Route::get('/installment-plans/{installment_plan}/payments/{payment}/receipt', [InstallmentPlanController::class, 'showPaymentReceipt'])->name('installment-plans.payment-receipt');
+    
+    // API de planes de cuotas
+    Route::get('/api/installment-plans/by-connection/{waterConnectionId}', [InstallmentPlanController::class, 'getByConnection'])->name('installment-plans.by-connection');
+    Route::get('/api/installment-plans/{installment_plan}/pending-installments', [InstallmentPlanController::class, 'getPendingInstallments'])->name('installment-plans.pending-installments');
 });
 
 require __DIR__.'/auth.php';

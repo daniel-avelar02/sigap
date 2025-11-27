@@ -48,6 +48,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Cobros Mensuales
                                 </NavLink>
+                                <NavLink
+                                    href={route('installment-plans.index')}
+                                    active={route().current('installment-plans.*')}
+                                >
+                                    Planes de Cuotas
+                                </NavLink>
                             </div>
                         </div>
 
@@ -169,6 +175,12 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('monthly-payments.*')}
                         >
                             Cobros Mensuales
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('installment-plans.index')}
+                            active={route().current('installment-plans.*')}
+                        >
+                            Planes de Cuotas
                         </ResponsiveNavLink>
                     </div>
 

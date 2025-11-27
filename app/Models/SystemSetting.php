@@ -78,4 +78,52 @@ class SystemSetting extends Model
 
         return $setting->value['date'] ?? '2025-01-01';
     }
+
+    /**
+     * Obtener el monto sugerido para instalación.
+     *
+     * @return float
+     */
+    public static function getInstallmentInstallationAmount(): float
+    {
+        $setting = self::where('key', 'installment_installation_amount')->first();
+        
+        if (!$setting) {
+            return 200.00; // Valor por defecto
+        }
+
+        return (float) ($setting->value['amount'] ?? 200.00);
+    }
+
+    /**
+     * Obtener el monto sugerido para medidor.
+     *
+     * @return float
+     */
+    public static function getInstallmentMeterAmount(): float
+    {
+        $setting = self::where('key', 'installment_meter_amount')->first();
+        
+        if (!$setting) {
+            return 150.00; // Valor por defecto
+        }
+
+        return (float) ($setting->value['amount'] ?? 150.00);
+    }
+
+    /**
+     * Obtener el número de cuotas por defecto.
+     *
+     * @return int
+     */
+    public static function getInstallmentDefaultTerm(): int
+    {
+        $setting = self::where('key', 'installment_default_term')->first();
+        
+        if (!$setting) {
+            return 6; // Valor por defecto
+        }
+
+        return (int) ($setting->value['months'] ?? 6);
+    }
 }
