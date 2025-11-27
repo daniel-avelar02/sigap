@@ -341,10 +341,11 @@ class WaterConnectionController extends Controller
                             'payment_date' => $payment->payment_date->format('d/m/Y'),
                             'total_amount' => $payment->total_amount,
                             'receipt_number' => $payment->receipt_number,
+                            'months_paid' => $payment->months_paid,
                         ];
                     }),
                     'pending_months' => $pendingMonths,
-                    'has_pending_months' => count($pendingMonths) > 0,
+                    'has_pending_months' => count(array_filter($pendingMonths, fn($m) => $m['is_pending'])) > 0,
                 ];
             });
 
@@ -361,13 +362,19 @@ class WaterConnectionController extends Controller
      * Esto permite:
      * - Pajas antiguas migradas: No cobrar deudas históricas (solo desde 2025)
      * - Pajas nuevas: Cobrar desde que fueron creadas
+     * - Pagos adelantados: Permite pagar hasta 12 meses futuros
+     * 
+     * @param WaterConnection $waterConnection
+     * @param int $futureMonths Número de meses futuros permitidos para pago (default: 12)
+     * @return array
      */
-    private function calculatePendingMonths(WaterConnection $waterConnection): array
+    private function calculatePendingMonths(WaterConnection $waterConnection, int $futureMonths = 12): array
     {
         // Obtener fecha de inicio de cobros mensuales desde configuración
         $systemBillingStartDate = \Carbon\Carbon::parse(SystemSetting::getMonthlyBillingStartDate());
         $pajaCreatedDate = \Carbon\Carbon::parse($waterConnection->created_at);
         $currentDate = \Carbon\Carbon::now();
+        $futureDate = \Carbon\Carbon::now()->addMonths($futureMonths);
 
         // Usar la fecha MÁS RECIENTE (la que ocurrió después)
         // Si la paja se creó después del inicio de cobros del sistema, usar created_at
@@ -376,32 +383,50 @@ class WaterConnectionController extends Controller
             ? $pajaCreatedDate 
             : $systemBillingStartDate;
 
-        // Obtener meses ya pagados
-        $paidMonths = $waterConnection->monthlyPayments
-            ->map(function($payment) {
-                return $payment->payment_year . '-' . str_pad($payment->payment_month, 2, '0', STR_PAD_LEFT);
-            })
-            ->toArray();
-
-        // Generar lista de meses requeridos desde la fecha efectiva de inicio
-        $pendingMonths = [];
-        $checkDate = $billingStartDate->copy()->startOfMonth();
+        // Obtener meses ya pagados (considerando el nuevo formato con months_paid)
+        $paidMonths = [];
+        $waterConnection->monthlyPayments->each(function($payment) use (&$paidMonths) {
+            // Si tiene months_paid (nuevo formato), usar esos meses
+            if ($payment->months_paid && is_array($payment->months_paid)) {
+                foreach ($payment->months_paid as $mp) {
+                    $paidMonths[] = $mp['year'] . '-' . str_pad($mp['month'], 2, '0', STR_PAD_LEFT);
+                }
+            } else {
+                // Formato antiguo: usar payment_month y payment_year
+                $paidMonths[] = $payment->payment_year . '-' . str_pad($payment->payment_month, 2, '0', STR_PAD_LEFT);
+            }
+        });
         
-        while ($checkDate <= $currentDate) {
+        $paidMonths = array_unique($paidMonths);
+
+        // Generar lista de meses disponibles para pago
+        // Incluye: meses pendientes (pasados y actual) + meses futuros permitidos
+        $availableMonths = [];
+        $checkDate = $billingStartDate->copy()->startOfMonth();
+        $currentMonthStart = $currentDate->copy()->startOfMonth();
+        
+        while ($checkDate <= $futureDate) {
             $monthKey = $checkDate->format('Y-m');
             
             if (!in_array($monthKey, $paidMonths)) {
-                $pendingMonths[] = [
+                // Un mes es pendiente si es anterior o igual al mes actual
+                $isPending = $checkDate->lte($currentMonthStart);
+                $isFuture = $checkDate->gt($currentMonthStart);
+                
+                $availableMonths[] = [
                     'month' => $checkDate->month,
                     'year' => $checkDate->year,
                     'period' => $checkDate->locale('es')->isoFormat('MMMM YYYY'),
+                    'is_pending' => $isPending,
+                    'is_future' => $isFuture,
+                    'type' => $isPending ? 'pending' : 'future',
                 ];
             }
             
             $checkDate->addMonth();
         }
 
-        return $pendingMonths;
+        return $availableMonths;
     }
 }
 

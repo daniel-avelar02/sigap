@@ -83,8 +83,8 @@ class MonthlyPaymentRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             if ($this->water_connection_id && $this->selected_months) {
-                $currentYear = date('Y');
-                $currentMonth = date('n');
+                $currentDate = now();
+                $maxFutureDate = now()->addMonths(12); // Permitir hasta 12 meses futuros
                 
                 foreach ($this->selected_months as $index => $monthYear) {
                     // Parsear el formato YYYY-M
@@ -92,20 +92,27 @@ class MonthlyPaymentRequest extends FormRequest
                     $year = (int) $year;
                     $month = (int) $month;
                     
-                    // Validar que no sea un mes futuro
-                    if ($year > $currentYear || 
-                        ($year == $currentYear && $month > $currentMonth)) {
+                    // Crear fecha del mes seleccionado
+                    $selectedDate = \Carbon\Carbon::create($year, $month, 1);
+                    
+                    // Validar que no sea más de 12 meses en el futuro
+                    if ($selectedDate->startOfMonth() > $maxFutureDate->startOfMonth()) {
                         $validator->errors()->add(
                             "selected_months.{$index}",
-                            'No se puede registrar un pago para un mes futuro.'
+                            'No se puede registrar un pago para más de 12 meses en el futuro.'
                         );
                         continue;
                     }
                     
                     // Verificar que no exista un pago duplicado
+                    // Buscar en payment_month/payment_year O en el JSON months_paid
                     $exists = MonthlyPayment::where('water_connection_id', $this->water_connection_id)
-                        ->where('payment_month', $month)
-                        ->where('payment_year', $year)
+                        ->where(function($q) use ($month, $year) {
+                            $q->where(function($sq) use ($month, $year) {
+                                $sq->where('payment_month', $month)
+                                   ->where('payment_year', $year);
+                            })->orWhereRaw('JSON_CONTAINS(months_paid, JSON_OBJECT("month", ?, "year", ?))', [$month, $year]);
+                        })
                         ->exists();
 
                     if ($exists) {

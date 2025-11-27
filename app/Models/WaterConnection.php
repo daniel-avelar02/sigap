@@ -285,13 +285,21 @@ class WaterConnection extends Model
             ? $pajaCreatedDate 
             : $systemBillingStartDate;
 
-        // Obtener todos los pagos de esta paja
-        $paidMonths = $this->monthlyPayments()
-            ->get()
-            ->map(function($payment) {
-                return $payment->payment_year . '-' . str_pad($payment->payment_month, 2, '0', STR_PAD_LEFT);
-            })
-            ->toArray();
+        // Obtener todos los pagos de esta paja y extraer los meses pagados
+        $paidMonths = [];
+        $this->monthlyPayments()->get()->each(function($payment) use (&$paidMonths) {
+            // Si tiene months_paid (nuevo formato), usar esos meses
+            if ($payment->months_paid && is_array($payment->months_paid)) {
+                foreach ($payment->months_paid as $mp) {
+                    $paidMonths[] = $mp['year'] . '-' . str_pad($mp['month'], 2, '0', STR_PAD_LEFT);
+                }
+            } else {
+                // Formato antiguo: usar payment_month y payment_year
+                $paidMonths[] = $payment->payment_year . '-' . str_pad($payment->payment_month, 2, '0', STR_PAD_LEFT);
+            }
+        });
+        
+        $paidMonths = array_unique($paidMonths);
 
         // Generar lista de todos los meses que deberían estar pagados
         $requiredMonths = [];

@@ -114,7 +114,7 @@ export default function Create({ monthlyFee, currentMonth, currentYear }) {
                                             <span className="text-sm font-medium text-gray-500">Estados de Pago:</span>
                                             <div className="mt-1 flex flex-wrap gap-2">
                                                 {selectedWaterConnection.payment_status.map((status) => (
-                                                    <PaymentStatusBadge key={status} status={status} />
+                                                    <PaymentStatusBadge key={status} paymentStatus={status} />
                                                 ))}
                                             </div>
                                         </div>
@@ -149,46 +149,7 @@ export default function Create({ monthlyFee, currentMonth, currentYear }) {
                                             </div>
                                         )}
                                     </div>
-                                </div>
-
-                                {/* Meses Pendientes */}
-                                {selectedWaterConnection.has_pending_months && (
-                                    <div className="mt-6 rounded-md bg-red-50 border border-red-200 p-4">
-                                        <div className="flex">
-                                            <div className="flex-shrink-0">
-                                                <svg
-                                                    className="h-5 w-5 text-red-400"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <div className="ml-3">
-                                                <h3 className="text-sm font-medium text-red-800">
-                                                    Meses Pendientes de Pago ({selectedWaterConnection.pending_months.length})
-                                                </h3>
-                                                <div className="mt-2 text-sm text-red-700">
-                                                    <ul className="list-disc pl-5 space-y-1">
-                                                        {selectedWaterConnection.pending_months.slice(0, 5).map((pm, idx) => (
-                                                            <li key={idx}>{pm.period}</li>
-                                                        ))}
-                                                        {selectedWaterConnection.pending_months.length > 5 && (
-                                                            <li className="font-medium">
-                                                                ...y {selectedWaterConnection.pending_months.length - 5} más
-                                                            </li>
-                                                        )}
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                                </div>                    
 
                                 {/* Últimos Pagos */}
                                 {selectedWaterConnection.recent_payments.length > 0 && (
@@ -215,22 +176,35 @@ export default function Create({ monthlyFee, currentMonth, currentYear }) {
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-200 bg-white">
-                                                    {selectedWaterConnection.recent_payments.slice(0, 5).map((payment) => (
-                                                        <tr key={payment.id} className="hover:bg-gray-50">
-                                                            <td className="px-4 py-2 text-sm font-mono text-gray-900">
-                                                                {payment.receipt_number}
-                                                            </td>
-                                                            <td className="px-4 py-2 text-sm text-gray-900">
-                                                                {payment.payment_period}
-                                                            </td>
-                                                            <td className="px-4 py-2 text-sm text-gray-500">
-                                                                {payment.payment_date}
-                                                            </td>
-                                                            <td className="px-4 py-2 text-sm text-right font-medium text-gray-900">
-                                                                ${parseFloat(payment.total_amount).toFixed(2)}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
+                                                    {selectedWaterConnection.recent_payments.slice(0, 5).map((payment) => {
+                                                        const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                                                        return (
+                                                            <tr key={payment.id} className="hover:bg-gray-50">
+                                                                <td className="px-4 py-2 text-sm font-mono text-gray-900">
+                                                                    {payment.receipt_number}
+                                                                </td>
+                                                                <td className="px-4 py-2 text-sm text-gray-900">
+                                                                    {payment.months_paid && payment.months_paid.length > 0 ? (
+                                                                        <div className="flex flex-wrap gap-1">
+                                                                            {payment.months_paid.map((mp, index) => (
+                                                                                <span key={index} className="inline-flex items-center rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800">
+                                                                                    {monthNames[mp.month - 1]}/{mp.year}
+                                                                                </span>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        payment.payment_period
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-4 py-2 text-sm text-gray-500">
+                                                                    {payment.payment_date}
+                                                                </td>
+                                                                <td className="px-4 py-2 text-sm text-right font-medium text-gray-900">
+                                                                    ${parseFloat(payment.total_amount).toFixed(2)}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
                                                 </tbody>
                                             </table>
                                         </div>

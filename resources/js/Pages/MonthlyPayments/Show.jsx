@@ -116,10 +116,23 @@ export default function Show({ payment, relatedPayments }) {
                                 </h3>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <span className="text-sm text-gray-600">Período Pagado:</span>
-                                        <p className="text-lg font-semibold text-gray-900">
-                                            {payment.month_name} {payment.payment_year}
-                                        </p>
+                                        <span className="text-sm text-gray-600">Período(s) Pagado(s):</span>
+                                        {payment.months_paid && payment.months_paid.length > 0 ? (
+                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                {payment.months_paid.map((mp, index) => {
+                                                    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                                                    return (
+                                                        <span key={index} className="inline-flex items-center rounded-md bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-800">
+                                                            {monthNames[mp.month - 1]}/{mp.year}
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <p className="text-lg font-semibold text-gray-900">
+                                                {payment.month_name} {payment.payment_year}
+                                            </p>
+                                        )}
                                     </div>
                                     <div>
                                         <span className="text-sm text-gray-600">Fecha de Pago:</span>
@@ -136,31 +149,34 @@ export default function Show({ payment, relatedPayments }) {
                                 </div>
                             </div>
 
-                            {/* Pagos Múltiples Relacionados */}
-                            {relatedPayments && relatedPayments.length > 1 && (
+                            {/* Meses incluidos en este pago */}
+                            {payment.months_paid && payment.months_paid.length > 1 && (
                                 <div className="border-t border-gray-200 pt-6 mb-6">
                                     <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                                        Meses Incluidos en este Pago ({relatedPayments.length})
+                                        Resumen de Meses ({payment.months_paid.length} meses)
                                     </h3>
                                     <div className="bg-blue-50 rounded-lg p-4">
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                            {relatedPayments.map((p) => (
-                                                <div key={p.id} className="bg-white rounded-md p-3 border border-blue-200">
-                                                    <p className="text-xs text-gray-600">Recibo #{p.receipt_number}</p>
-                                                    <p className="text-sm font-semibold text-gray-900">
-                                                        {p.month_name} {p.payment_year}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500">
-                                                        ${parseFloat(p.total_amount).toFixed(2)}
-                                                    </p>
-                                                </div>
-                                            ))}
+                                            {payment.months_paid.map((mp, index) => {
+                                                const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                                                const monthlyFee = parseFloat(payment.total_amount) / payment.months_paid.length;
+                                                return (
+                                                    <div key={index} className="bg-white rounded-md p-3 border border-blue-200">
+                                                        <p className="text-sm font-semibold text-gray-900">
+                                                            {monthNames[mp.month - 1]} {mp.year}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500">
+                                                            ${monthlyFee.toFixed(2)}
+                                                        </p>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                         <div className="mt-4 pt-4 border-t border-blue-200">
                                             <div className="flex justify-between items-center">
-                                                <span className="text-sm font-medium text-gray-700">Total de todos los meses:</span>
-                                                <span className="text-lg font-bold text-gray-900">
-                                                    ${relatedPayments.reduce((sum, p) => sum + parseFloat(p.total_amount), 0).toFixed(2)}
+                                                <span className="text-sm font-medium text-gray-700">Cuota mensual:</span>
+                                                <span className="text-sm font-medium text-gray-900">
+                                                    ${(parseFloat(payment.total_amount) / payment.months_paid.length).toFixed(2)}
                                                 </span>
                                             </div>
                                         </div>

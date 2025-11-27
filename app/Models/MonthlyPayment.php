@@ -16,6 +16,7 @@ class MonthlyPayment extends Model
         'water_connection_id',
         'payment_month',
         'payment_year',
+        'months_paid',
         'payment_date',
         'receipt_number',
         'payment_group_id',
@@ -37,6 +38,7 @@ class MonthlyPayment extends Model
         'payment_date' => 'datetime',
         'monthly_fee_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
+        'months_paid' => 'array',
     ];
 
     /**

@@ -8,6 +8,7 @@ use App\Models\Owner;
 use App\Models\SystemSetting;
 use App\Models\WaterConnection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
@@ -86,60 +87,70 @@ class MonthlyPaymentController extends Controller
     }
 
     /**
-     * Registra un nuevo pago mensual (o múltiples meses).
+     * Registra un nuevo pago mensual (o múltiples meses en un solo recibo).
      */
     public function store(MonthlyPaymentRequest $request): RedirectResponse
     {
         $selectedMonths = $request->selected_months;
         $monthsCount = count($selectedMonths);
         
-        // Generar un ID de grupo si hay múltiples meses
+        // Generar UN SOLO número de recibo para todos los meses
+        $receiptNumber = MonthlyPayment::generateReceiptNumber();
         $paymentGroupId = $monthsCount > 1 ? MonthlyPayment::generatePaymentGroupId() : null;
-        
-        $createdPayments = [];
         $paymentDate = $request->payment_date ?? now();
         
-        // Crear un pago por cada mes seleccionado
+        // Preparar información de los meses pagados
+        $monthsPaid = [];
         foreach ($selectedMonths as $monthYear) {
-            // Parsear el formato YYYY-M
             [$year, $month] = explode('-', $monthYear);
-            $year = (int) $year;
-            $month = (int) $month;
-            
-            // Generar número de recibo único para cada pago
-            $receiptNumber = MonthlyPayment::generateReceiptNumber();
-            
-            // Crear el pago
-            $payment = MonthlyPayment::create([
-                'water_connection_id' => $request->water_connection_id,
-                'payment_month' => $month,
-                'payment_year' => $year,
-                'payment_date' => $paymentDate,
-                'receipt_number' => $receiptNumber,
-                'payment_group_id' => $paymentGroupId,
-                'months_count' => $monthsCount,
-                'payer_name' => $request->payer_name,
-                'payer_dui' => $request->payer_dui,
-                'monthly_fee_amount' => $request->monthly_fee_amount,
-                'total_amount' => $request->monthly_fee_amount,
-                'notes' => $request->notes,
-                'user_id' => auth()->id(),
-            ]);
-            
-            $createdPayments[] = $payment;
+            $monthsPaid[] = [
+                'month' => (int) $month,
+                'year' => (int) $year,
+            ];
         }
+        
+        // Ordenar meses por año y mes
+        usort($monthsPaid, function($a, $b) {
+            if ($a['year'] === $b['year']) {
+                return $a['month'] - $b['month'];
+            }
+            return $a['year'] - $b['year'];
+        });
+        
+        // Usar el primer mes como referencia (para compatibilidad con queries existentes)
+        $firstMonth = $monthsPaid[0];
+        
+        // Calcular el monto total (cuota mensual * número de meses)
+        $totalAmount = $request->monthly_fee_amount * $monthsCount;
+        
+        // Crear UN SOLO registro de pago con todos los meses
+        $payment = MonthlyPayment::create([
+            'water_connection_id' => $request->water_connection_id,
+            'payment_month' => $firstMonth['month'],
+            'payment_year' => $firstMonth['year'],
+            'months_paid' => $monthsPaid,
+            'payment_date' => $paymentDate,
+            'receipt_number' => $receiptNumber,
+            'payment_group_id' => $paymentGroupId,
+            'months_count' => $monthsCount,
+            'payer_name' => $request->payer_name,
+            'payer_dui' => $request->payer_dui,
+            'monthly_fee_amount' => $request->monthly_fee_amount,
+            'total_amount' => $totalAmount,
+            'notes' => $request->notes,
+            'user_id' => Auth::id(),
+        ]);
 
         // Actualizar el estado de pago de la paja
         $waterConnection = WaterConnection::find($request->water_connection_id);
         $waterConnection->updatePaymentStatus();
 
-        // Redirigir al comprobante del primer pago
         $message = $monthsCount === 1 
             ? __('custom.payment_registered')
-            : "Se registraron exitosamente {$monthsCount} pagos mensuales.";
+            : "Se registraron exitosamente {$monthsCount} meses en un solo recibo.";
 
         return redirect()
-            ->route('monthly-payments.show', $createdPayments[0])
+            ->route('monthly-payments.show', $payment)
             ->with('success', $message);
     }
 

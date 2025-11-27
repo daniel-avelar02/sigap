@@ -21,5 +21,12 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Seeders de datos de prueba
+        $this->call([
+            OwnerSeeder::class,
+            // WaterConnectionSeeder::class, // Seeder básico
+            LegacyWaterConnectionSeeder::class, // Seeder con datos legacy para pruebas
+        ]);
     }
 }

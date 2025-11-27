@@ -16,6 +16,8 @@ export default function Index({ payments, pageTotal, filters, communities }) {
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
+    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
     const handleFilter = () => {
         router.get(route('monthly-payments.index'), {
             search,
@@ -155,7 +157,7 @@ export default function Index({ payments, pageTotal, filters, communities }) {
                                             Fecha
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                            Paja
+                                            N° Paja
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                             Propietario
@@ -164,7 +166,7 @@ export default function Index({ payments, pageTotal, filters, communities }) {
                                             Comunidad
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                            Período
+                                            Mes / Año
                                         </th>
                                         <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                                             Monto
@@ -184,8 +186,8 @@ export default function Index({ payments, pageTotal, filters, communities }) {
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                                     {new Date(payment.payment_date).toLocaleDateString('es-SV')}
                                                 </td>
-                                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                                                    {payment.water_connection.code}
+                                                <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold text-blue-600">
+                                                    #{payment.water_connection.owner_number}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-900">
                                                     {payment.water_connection.owner.name}
@@ -193,8 +195,21 @@ export default function Index({ payments, pageTotal, filters, communities }) {
                                                 <td className="whitespace-nowrap px-6 py-4">
                                                     <CommunityBadge community={payment.water_connection.community} size="sm" />
                                                 </td>
-                                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                                                    {payment.month_name} {payment.payment_year}
+                                                <td className="px-6 py-4 text-sm text-gray-900">
+                                                    {payment.months_paid && payment.months_paid.length > 1 ? (
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {payment.months_paid.map((mp, idx) => (
+                                                                <span 
+                                                                    key={idx}
+                                                                    className="inline-block bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded"
+                                                                >
+                                                                    {monthNames[mp.month - 1]}/{mp.year}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <span>{monthNames[payment.payment_month - 1]} {payment.payment_year}</span>
+                                                    )}
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium text-gray-900">
                                                     ${parseFloat(payment.total_amount).toFixed(2)}
