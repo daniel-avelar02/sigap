@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\InstallmentPlanController;
 use App\Http\Controllers\MonthlyPaymentController;
+use App\Http\Controllers\OtherPaymentController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\WaterConnectionController;
 use App\Http\Controllers\ProfileController;
@@ -63,6 +64,14 @@ Route::middleware('auth')->group(function () {
     // API de planes de cuotas
     Route::get('/api/installment-plans/by-connection/{waterConnectionId}', [InstallmentPlanController::class, 'getByConnection'])->name('installment-plans.by-connection');
     Route::get('/api/installment-plans/{installment_plan}/pending-installments', [InstallmentPlanController::class, 'getPendingInstallments'])->name('installment-plans.pending-installments');
+    
+    // Rutas de otros pagos
+    Route::resource('other-payments', OtherPaymentController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
+    Route::post('/other-payments/{id}/restore', [OtherPaymentController::class, 'restore'])->name('other-payments.restore');
+    
+    // API de otros pagos
+    Route::get('/api/other-payments/by-connection', [OtherPaymentController::class, 'getByWaterConnection'])->name('other-payments.by-connection');
+    Route::get('/api/other-payments/stats-by-type', [OtherPaymentController::class, 'getStatsByType'])->name('other-payments.stats-by-type');
 });
 
 require __DIR__.'/auth.php';

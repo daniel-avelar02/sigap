@@ -14,6 +14,20 @@ class WaterConnection extends Model
     use HasFactory, SoftDeletes;
 
     /**
+     * Comunidades disponibles en el sistema
+     */
+    const COMMUNITIES = [
+        'La Pandeadura',
+        'La Puerta',
+        'Loma Larga',
+        'Rodeo 1',
+        'Rodeo 2',
+        'San Francisco',
+        'San Rafael',
+        'San Rafael (Los Pinos)',
+    ];
+
+    /**
      * Estados operativos de la paja de agua
      */
     const STATUSES = [
@@ -116,6 +130,16 @@ class WaterConnection extends Model
     public function installmentPlans(): HasMany
     {
         return $this->hasMany(InstallmentPlan::class)->orderByDesc('created_at');
+    }
+
+    /**
+     * Relación: Una paja de agua tiene muchos otros pagos
+     *
+     * @return HasMany
+     */
+    public function otherPayments(): HasMany
+    {
+        return $this->hasMany(OtherPayment::class)->orderByDesc('payment_date');
     }
 
     /**

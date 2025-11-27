@@ -12,6 +12,9 @@ export function formatDui(dui) {
     return `${dui.substring(0, 8)}-${dui.substring(8, 9)}`;
 }
 
+// Alias para compatibilidad
+export const formatDUI = formatDui;
+
 /**
  * Limpia el DUI removiendo guiones y espacios
  * 
@@ -46,4 +49,68 @@ export function formatPhone(phone) {
 export function cleanPhone(phone) {
     if (!phone) return '';
     return phone.replace(/[-\s]/g, '');
+}
+
+/**
+ * Formatea un monto a formato de moneda ($0.00)
+ * 
+ * @param {number|string} amount - Monto a formatear
+ * @returns {string} Monto formateado con símbolo de dólar
+ */
+export function formatCurrency(amount) {
+    if (amount === null || amount === undefined) return '$0.00';
+    
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    
+    if (isNaN(numAmount)) return '$0.00';
+    
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(numAmount);
+}
+
+/**
+ * Formatea una fecha y hora
+ * 
+ * @param {string} dateTime - Fecha en formato ISO
+ * @returns {string} Fecha formateada
+ */
+export function formatDateTime(dateTime) {
+    if (!dateTime) return '';
+    
+    const date = new Date(dateTime);
+    
+    if (isNaN(date.getTime())) return dateTime;
+    
+    return new Intl.DateTimeFormat('es-SV', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+    }).format(date);
+}
+
+/**
+ * Formatea solo la fecha (sin hora)
+ * 
+ * @param {string} date - Fecha en formato ISO
+ * @returns {string} Fecha formateada
+ */
+export function formatDate(date) {
+    if (!date) return '';
+    
+    const d = new Date(date);
+    
+    if (isNaN(d.getTime())) return date;
+    
+    return new Intl.DateTimeFormat('es-SV', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }).format(d);
 }
