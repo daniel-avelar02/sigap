@@ -37,6 +37,9 @@ Route::middleware('auth')->group(function () {
     
     // API de búsqueda de pajas de agua
     Route::get('/api/water-connections/search', [WaterConnectionController::class, 'search'])->name('water-connections.search');
+    
+    // API para obtener números de propietario por comunidad
+    Route::get('/api/water-connections/owner-numbers-by-community', [WaterConnectionController::class, 'getOwnerNumbersByCommunity'])->name('water-connections.owner-numbers-by-community');
 });
 
 require __DIR__.'/auth.php';

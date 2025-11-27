@@ -23,6 +23,7 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import OwnerSearchDropdown from '@/Components/OwnerSearchDropdown';
 import PaymentStatusBadge from '@/Components/PaymentStatusBadge';
+import OwnerNumberHelper from '@/Components/OwnerNumberHelper';
 
 export default function Edit({ waterConnection, communities, statuses, filters = {} }) {
     const { data, setData, patch, processing, errors } = useForm({
@@ -98,7 +99,7 @@ export default function Edit({ waterConnection, communities, statuses, filters =
 
                                 {/* Propietario */}
                                 <div>
-                                    <InputLabel htmlFor="owner_id" value="Propietario" />
+                                    <InputLabel htmlFor="owner_id" value="Propietario *" />
                                     <p className="mt-1 text-sm text-gray-700">
                                         <strong>Actual:</strong> {waterConnection.owner.name} ({waterConnection.owner.formatted_dui})
                                     </p>
@@ -111,25 +112,9 @@ export default function Edit({ waterConnection, communities, statuses, filters =
                                     <InputError message={errors.owner_id} className="mt-2" />
                                 </div>
 
-                                {/* Número de propietario */}
+                                {/* Comunidad (auto-llenada desde propietario) */}
                                 <div>
-                                    <InputLabel htmlFor="owner_number" value="Número de propietario (opcional)" />
-                                    <TextInput
-                                        id="owner_number"
-                                        type="text"
-                                        value={data.owner_number}
-                                        onChange={(e) => setData('owner_number', e.target.value)}
-                                        className="mt-1 block w-full"
-                                    />
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        Código legacy usado en la asociación.
-                                    </p>
-                                    <InputError message={errors.owner_number} className="mt-2" />
-                                </div>
-
-                                {/* Comunidad */}
-                                <div>
-                                    <InputLabel htmlFor="community" value="Comunidad" />
+                                    <InputLabel htmlFor="community" value="Comunidad *" />
                                     <select
                                         id="community"
                                         value={data.community}
@@ -144,7 +129,34 @@ export default function Edit({ waterConnection, communities, statuses, filters =
                                             </option>
                                         ))}
                                     </select>
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        Se completa automáticamente al seleccionar el propietario, pero puede modificarse.
+                                    </p>
                                     <InputError message={errors.community} className="mt-2" />
+                                </div>
+
+                                {/* Número de propietario */}
+                                <div>
+                                    <InputLabel htmlFor="owner_number" value="Número de propietario *" />
+                                    <TextInput
+                                        id="owner_number"
+                                        type="text"
+                                        value={data.owner_number}
+                                        onChange={(e) => setData('owner_number', e.target.value)}
+                                        className="mt-1 block w-full"
+                                        required
+                                    />
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        Código único del propietario en su comunidad.
+                                    </p>
+                                    <InputError message={errors.owner_number} className="mt-2" />
+                                    
+                                    {/* Helper de números disponibles */}
+                                    <OwnerNumberHelper 
+                                        community={data.community}
+                                        currentValue={data.owner_number}
+                                        excludeId={waterConnection.id}
+                                    />
                                 </div>
 
                                 {/* Descripción de ubicación */}

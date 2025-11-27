@@ -25,6 +25,7 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import OwnerSearchDropdown from '@/Components/OwnerSearchDropdown';
+import OwnerNumberHelper from '@/Components/OwnerNumberHelper';
 
 export default function Create({ communities, statuses, filters = {}, preselectedOwnerId }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -81,7 +82,7 @@ export default function Create({ communities, statuses, filters = {}, preselecte
 
                                 {/* Propietario */}
                                 <div>
-                                    <InputLabel htmlFor="owner_id" value="Propietario" />
+                                    <InputLabel htmlFor="owner_id" value="Propietario *" />
                                     <OwnerSearchDropdown
                                         onSelect={handleOwnerSelect}
                                         placeholder="Buscar por nombre o DUI..."
@@ -94,25 +95,9 @@ export default function Create({ communities, statuses, filters = {}, preselecte
                                     )}
                                 </div>
 
-                                {/* Número de propietario (legacy) */}
+                                {/* Comunidad (auto-llenada desde propietario) */}
                                 <div>
-                                    <InputLabel htmlFor="owner_number" value="Número de propietario (opcional)" />
-                                    <TextInput
-                                        id="owner_number"
-                                        type="text"
-                                        value={data.owner_number}
-                                        onChange={(e) => setData('owner_number', e.target.value)}
-                                        className="mt-1 block w-full"
-                                    />
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        Código legacy usado actualmente en la asociación (puede repetirse en diferentes comunidades).
-                                    </p>
-                                    <InputError message={errors.owner_number} className="mt-2" />
-                                </div>
-
-                                {/* Comunidad */}
-                                <div>
-                                    <InputLabel htmlFor="community" value="Comunidad" />
+                                    <InputLabel htmlFor="community" value="Comunidad *" />
                                     <select
                                         id="community"
                                         value={data.community}
@@ -131,6 +116,29 @@ export default function Create({ communities, statuses, filters = {}, preselecte
                                         Se completa automáticamente al seleccionar el propietario, pero puede modificarse.
                                     </p>
                                     <InputError message={errors.community} className="mt-2" />
+                                </div>
+
+                                {/* Número de propietario */}
+                                <div>
+                                    <InputLabel htmlFor="owner_number" value="Número de propietario *" />
+                                    <TextInput
+                                        id="owner_number"
+                                        type="text"
+                                        value={data.owner_number}
+                                        onChange={(e) => setData('owner_number', e.target.value)}
+                                        className="mt-1 block w-full"
+                                        required
+                                    />
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        Código único del propietario en su comunidad.
+                                    </p>
+                                    <InputError message={errors.owner_number} className="mt-2" />
+                                    
+                                    {/* Helper de números disponibles */}
+                                    <OwnerNumberHelper 
+                                        community={data.community}
+                                        currentValue={data.owner_number}
+                                    />
                                 </div>
 
                                 {/* Descripción de ubicación */}

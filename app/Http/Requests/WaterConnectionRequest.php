@@ -28,15 +28,15 @@ class WaterConnectionRequest extends FormRequest
         $community = $this->input('community');
 
         return [
+            'owner_id' => ['required', 'exists:owners,id'],
             'owner_number' => [
-                'nullable',
+                'required',
                 'string',
                 'max:50',
                 Rule::unique('water_connections')
                     ->where('community', $community)
                     ->ignore($waterConnectionId),
             ],
-            'owner_id' => ['required', 'exists:owners,id'],
             'community' => ['required', 'string', Rule::in(Owner::COMMUNITIES)],
             'location_description' => ['nullable', 'string', 'max:500'],
             'status' => ['required', 'string', Rule::in(WaterConnection::STATUSES)],
@@ -71,9 +71,10 @@ class WaterConnectionRequest extends FormRequest
         $community = $this->input('community', 'esta comunidad');
         
         return [
-            'owner_number.unique' => "El número de propietario ya está registrado en la comunidad {$community}.",
             'owner_id.required' => 'Debe seleccionar un propietario.',
             'owner_id.exists' => 'El propietario seleccionado no existe.',
+            'owner_number.required' => 'El número de propietario es obligatorio.',
+            'owner_number.unique' => "El número de propietario ya está registrado en la comunidad {$community}.",
             'community.in' => 'La comunidad seleccionada no es válida.',
             'status.in' => 'El estado seleccionado no es válido.',
             'location_description.max' => 'La descripción de ubicación no puede exceder 500 caracteres.',

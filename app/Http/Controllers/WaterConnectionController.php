@@ -201,6 +201,69 @@ class WaterConnectionController extends Controller
     }
 
     /**
+     * Obtener números de propietario usados en una comunidad específica
+     * y sugerir el siguiente número disponible.
+     */
+    public function getOwnerNumbersByCommunity(Request $request)
+    {
+        $community = $request->input('community');
+        
+        if (!$community) {
+            return response()->json([
+                'used_numbers' => [],
+                'last_numbers' => [],
+                'suggested_next' => '1',
+            ]);
+        }
+
+        // Obtener todos los números usados en esta comunidad (excluyendo soft deleted)
+        $usedNumbers = WaterConnection::where('community', $community)
+            ->whereNotNull('owner_number')
+            ->pluck('owner_number')
+            ->map(function ($number) {
+                // Convertir a string y limpiar espacios
+                return trim((string) $number);
+            })
+            ->filter()
+            ->values()
+            ->toArray();
+
+        // Obtener los últimos 5 números registrados
+        $lastNumbers = WaterConnection::with('owner')
+            ->where('community', $community)
+            ->whereNotNull('owner_number')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($wc) {
+                return [
+                    'owner_number' => trim((string) $wc->owner_number),
+                    'owner_name' => $wc->owner->name,
+                    'created_at' => $wc->created_at->format('d/m/Y'),
+                ];
+            });
+
+        // Sugerir el siguiente número disponible
+        $numericNumbers = array_filter($usedNumbers, function ($number) {
+            return is_numeric($number);
+        });
+
+        if (empty($numericNumbers)) {
+            $suggestedNext = '1';
+        } else {
+            $maxNumber = max(array_map('intval', $numericNumbers));
+            $suggestedNext = (string) ($maxNumber + 1);
+        }
+
+        return response()->json([
+            'used_numbers' => $usedNumbers,
+            'last_numbers' => $lastNumbers,
+            'suggested_next' => $suggestedNext,
+            'total_count' => count($usedNumbers),
+        ]);
+    }
+
+    /**
      * Generar un código único para la paja de agua.
      * Formato: WC-XXXXX (WC seguido de 5 dígitos con ceros a la izquierda)
      *
