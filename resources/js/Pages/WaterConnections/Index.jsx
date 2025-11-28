@@ -23,6 +23,7 @@ import CommunityBadge from '@/Components/CommunityBadge';
 import StatusBadge from '@/Components/StatusBadge';
 import PaymentStatusBadge from '@/Components/PaymentStatusBadge';
 import ConfirmModal from '@/Components/ConfirmModal';
+import Pagination from '@/Components/Pagination';
 import { formatDui } from '@/Utils/helpers';
 
 export default function Index({ waterConnections, filters, communities, statuses, paymentStatuses, paymentStatusLabels }) {
@@ -254,16 +255,16 @@ export default function Index({ waterConnections, filters, communities, statuses
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <th 
+                                        <th
                                             className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 cursor-pointer hover:bg-gray-100 select-none"
                                             onClick={() => handleSort('code')}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <span>Código</span>
                                                 {sortBy === 'code' && (
-                                                    <svg 
+                                                    <svg
                                                         className={`h-4 w-4 transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`}
-                                                        fill="currentColor" 
+                                                        fill="currentColor"
                                                         viewBox="0 0 20 20"
                                                     >
                                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -271,16 +272,16 @@ export default function Index({ waterConnections, filters, communities, statuses
                                                 )}
                                             </div>
                                         </th>
-                                        <th 
+                                        <th
                                             className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 cursor-pointer hover:bg-gray-100 select-none"
                                             onClick={() => handleSort('owner_number')}
                                         >
                                             <div className="flex items-center gap-2">
-                                                <span>N° Propietario</span>
+                                                <span>N° Prop.</span>
                                                 {sortBy === 'owner_number' && (
-                                                    <svg 
+                                                    <svg
                                                         className={`h-4 w-4 transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`}
-                                                        fill="currentColor" 
+                                                        fill="currentColor"
                                                         viewBox="0 0 20 20"
                                                     >
                                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -288,16 +289,16 @@ export default function Index({ waterConnections, filters, communities, statuses
                                                 )}
                                             </div>
                                         </th>
-                                        <th 
+                                        <th
                                             className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 cursor-pointer hover:bg-gray-100 select-none"
                                             onClick={() => handleSort('owner_name')}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <span>Propietario</span>
                                                 {sortBy === 'owner_name' && (
-                                                    <svg 
+                                                    <svg
                                                         className={`h-4 w-4 transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`}
-                                                        fill="currentColor" 
+                                                        fill="currentColor"
                                                         viewBox="0 0 20 20"
                                                     >
                                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -305,16 +306,16 @@ export default function Index({ waterConnections, filters, communities, statuses
                                                 )}
                                             </div>
                                         </th>
-                                        <th 
+                                        <th
                                             className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 cursor-pointer hover:bg-gray-100 select-none"
                                             onClick={() => handleSort('community')}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <span>Comunidad</span>
                                                 {sortBy === 'community' && (
-                                                    <svg 
+                                                    <svg
                                                         className={`h-4 w-4 transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`}
-                                                        fill="currentColor" 
+                                                        fill="currentColor"
                                                         viewBox="0 0 20 20"
                                                     >
                                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -343,10 +344,8 @@ export default function Index({ waterConnections, filters, communities, statuses
                                     ) : (
                                         waterConnections.data.map((wc) => (
                                             <tr key={wc.id} className="hover:bg-gray-50">
-                                                <td className="whitespace-nowrap px-6 py-4">
-                                                    <div className="text-gray-900">
-                                                        {wc.code}
-                                                    </div>
+                                                <td className="whitespace-nowrap px-6 py-4 font-mono text-sm font-medium text-gray-900">
+                                                    {wc.code}
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                                     <div className="font-semibold text-gray-900">
@@ -357,9 +356,11 @@ export default function Index({ waterConnections, filters, communities, statuses
                                                     <div className="text-sm font-medium text-gray-900 whitespace-normal">
                                                         {wc.owner?.name || <span className="italic text-gray-400">Sin propietario</span>}
                                                     </div>
-                                                    <div className="text-xs text-gray-500">
-                                                        {formatDui(wc.owner?.dui) || '-'}
-                                                    </div>
+                                                    {wc.owner?.dui && (
+                                                        <div className="text-xs text-gray-500">
+                                                            {formatDui(wc.owner.dui)}
+                                                        </div>
+                                                    )}
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4">
                                                     <CommunityBadge community={wc.community} size="sm" />
@@ -393,14 +394,14 @@ export default function Index({ waterConnections, filters, communities, statuses
                                                             </span>
                                                         </Dropdown.Trigger>
                                                         <Dropdown.Content align="right" direction='up' width="48">
-                                                            <Dropdown.Link 
+                                                            <Dropdown.Link
                                                                 href={route('water-connections.show', [wc.id, filters])}
                                                             >
                                                                 Ver detalles
                                                             </Dropdown.Link>
                                                             {!wc.deleted_at && (
                                                                 <>
-                                                                    <Dropdown.Link 
+                                                                    <Dropdown.Link
                                                                         href={route('water-connections.edit', [wc.id, filters])}
                                                                     >
                                                                         Editar
@@ -432,63 +433,12 @@ export default function Index({ waterConnections, filters, communities, statuses
                         </div>
 
                         {/* Paginación */}
-                        {waterConnections.links.length > 3 && (
-                            <div className="border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-                                <div className="flex flex-1 justify-between sm:hidden">
-                                    {waterConnections.prev_page_url && (
-                                        <Link
-                                            href={waterConnections.prev_page_url}
-                                            className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                        >
-                                            Anterior
-                                        </Link>
-                                    )}
-                                    {waterConnections.next_page_url && (
-                                        <Link
-                                            href={waterConnections.next_page_url}
-                                            className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                        >
-                                            Siguiente
-                                        </Link>
-                                    )}
-                                </div>
-                                <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                                    <div>
-                                        <p className="text-sm text-gray-700">
-                                            Mostrando <span className="font-medium">{waterConnections.from}</span> a{' '}
-                                            <span className="font-medium">{waterConnections.to}</span> de{' '}
-                                            <span className="font-medium">{waterConnections.total}</span> resultados
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm">
-                                            {waterConnections.links.map((link, index) => {
-                                                let label = link.label;
-                                                if (label === '&laquo; Previous') {
-                                                    label = '&laquo; Anterior';
-                                                } else if (label === 'Next &raquo;') {
-                                                    label = 'Siguiente &raquo;';
-                                                }
-                                                
-                                                return (
-                                                    <Link
-                                                        key={index}
-                                                        href={link.url || '#'}
-                                                        preserveState
-                                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-medium ${link.active
-                                                                ? 'z-10 bg-indigo-600 text-white'
-                                                                : 'bg-white text-gray-700 hover:bg-gray-50'
-                                                            } ${!link.url ? 'cursor-not-allowed opacity-50' : ''} ${index === 0 ? 'rounded-l-md' : ''
-                                                            } ${index === waterConnections.links.length - 1 ? 'rounded-r-md' : ''} border border-gray-300`}
-                                                        dangerouslySetInnerHTML={{ __html: label }}
-                                                    />
-                                                );
-                                            })}
-                                        </nav>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        <Pagination
+                            links={waterConnections.links}
+                            from={waterConnections.from}
+                            to={waterConnections.to}
+                            total={waterConnections.total}
+                        />
                     </div>
                 </div>
             </div>

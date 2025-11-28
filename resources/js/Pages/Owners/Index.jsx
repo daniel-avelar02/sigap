@@ -29,6 +29,7 @@ import Dropdown from '@/Components/Dropdown';
 import CommunityBadge from '@/Components/CommunityBadge';
 import ConfirmModal from '@/Components/ConfirmModal';
 import { formatDui, formatPhone } from '@/Utils/helpers';
+import Pagination from '@/Components/Pagination';
 
 export default function Index({ owners, filters, communities }) {
     const [search, setSearch] = useState(filters.search || '');
@@ -88,7 +89,7 @@ export default function Index({ owners, filters, communities }) {
     const handleCommunityChange = (e) => {
         const value = e.target.value;
         setCommunity(value);
-        
+
         // Aplicar filtro inmediatamente
         applyFilters({
             search: search.trim() === '' ? undefined : search,
@@ -100,7 +101,7 @@ export default function Index({ owners, filters, communities }) {
     const handleStatusChange = (e) => {
         const value = e.target.value;
         setStatus(value);
-        
+
         // Aplicar filtro inmediatamente
         applyFilters({
             search: search.trim() === '' ? undefined : search,
@@ -120,15 +121,15 @@ export default function Index({ owners, filters, communities }) {
 
     const handleSort = (column) => {
         let newSortOrder = 'asc';
-        
+
         // Si ya estamos ordenando por esta columna, invertir el orden
         if (sortBy === column) {
             newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
         }
-        
+
         setSortBy(column);
         setSortOrder(newSortOrder);
-        
+
         applyFilters({
             search: search.trim() === '' ? undefined : search,
             community: community === '' ? undefined : community,
@@ -251,16 +252,16 @@ export default function Index({ owners, filters, communities }) {
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <th 
+                                        <th
                                             className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 cursor-pointer hover:bg-gray-100 select-none"
                                             onClick={() => handleSort('name')}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <span>Nombre</span>
                                                 {sortBy === 'name' && (
-                                                    <svg 
+                                                    <svg
                                                         className={`h-4 w-4 transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`}
-                                                        fill="currentColor" 
+                                                        fill="currentColor"
                                                         viewBox="0 0 20 20"
                                                     >
                                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -274,16 +275,16 @@ export default function Index({ owners, filters, communities }) {
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                             Contacto
                                         </th>
-                                        <th 
+                                        <th
                                             className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 cursor-pointer hover:bg-gray-100 select-none"
                                             onClick={() => handleSort('community')}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <span>Comunidad</span>
                                                 {sortBy === 'community' && (
-                                                    <svg 
+                                                    <svg
                                                         className={`h-4 w-4 transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`}
-                                                        fill="currentColor" 
+                                                        fill="currentColor"
                                                         viewBox="0 0 20 20"
                                                     >
                                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -373,35 +374,35 @@ export default function Index({ owners, filters, communities }) {
                                                                 width="48"
                                                             > */}
 
-                                                                <Dropdown.Link 
-                                                                    href={route('owners.show', [owner.id, filters])}
-                                                                >
-                                                                    Ver detalles
-                                                                </Dropdown.Link>
-                                                                {!owner.deleted_at && (
-                                                                    <>
-                                                                        <Dropdown.Link 
-                                                                            href={route('owners.edit', [owner.id, filters])}
-                                                                        >
-                                                                            Editar
-                                                                        </Dropdown.Link>
-                                                                        <button
-                                                                            onClick={() => handleDelete(owner)}
-                                                                            className="block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                                                                        >
-                                                                            Desactivar
-                                                                        </button>
-                                                                    </>
-                                                                )}
-                                                                {owner.deleted_at && (
+                                                            <Dropdown.Link
+                                                                href={route('owners.show', [owner.id, filters])}
+                                                            >
+                                                                Ver detalles
+                                                            </Dropdown.Link>
+                                                            {!owner.deleted_at && (
+                                                                <>
+                                                                    <Dropdown.Link
+                                                                        href={route('owners.edit', [owner.id, filters])}
+                                                                    >
+                                                                        Editar
+                                                                    </Dropdown.Link>
                                                                     <button
-                                                                        onClick={() => handleRestore(owner)}
+                                                                        onClick={() => handleDelete(owner)}
                                                                         className="block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                                                                     >
-                                                                        Restaurar
+                                                                        Desactivar
                                                                     </button>
-                                                                )}
-                                                            </Dropdown.Content>
+                                                                </>
+                                                            )}
+                                                            {owner.deleted_at && (
+                                                                <button
+                                                                    onClick={() => handleRestore(owner)}
+                                                                    className="block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                                                                >
+                                                                    Restaurar
+                                                                </button>
+                                                            )}
+                                                        </Dropdown.Content>
                                                     </Dropdown>
                                                 </td>
                                             </tr>
@@ -410,66 +411,14 @@ export default function Index({ owners, filters, communities }) {
                                 </tbody>
                             </table>
                         </div>
-
+                        
                         {/* Paginación */}
-                        {owners.links.length > 3 && (
-                            <div className="border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-                                <div className="flex flex-1 justify-between sm:hidden">
-                                    {owners.prev_page_url && (
-                                        <Link
-                                            href={owners.prev_page_url}
-                                            className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                        >
-                                            Anterior
-                                        </Link>
-                                    )}
-                                    {owners.next_page_url && (
-                                        <Link
-                                            href={owners.next_page_url}
-                                            className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                        >
-                                            Siguiente
-                                        </Link>
-                                    )}
-                                </div>
-                                <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                                    <div>
-                                        <p className="text-sm text-gray-700">
-                                            Mostrando <span className="font-medium">{owners.from}</span> a{' '}
-                                            <span className="font-medium">{owners.to}</span> de{' '}
-                                            <span className="font-medium">{owners.total}</span> resultados
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm">
-                                            {owners.links.map((link, index) => {
-                                                // Traducir las etiquetas de paginación
-                                                let label = link.label;
-                                                if (label === '&laquo; Previous') {
-                                                    label = '&laquo; Anterior';
-                                                } else if (label === 'Next &raquo;') {
-                                                    label = 'Siguiente &raquo;';
-                                                }
-                                                
-                                                return (
-                                                    <Link
-                                                        key={index}
-                                                        href={link.url || '#'}
-                                                        preserveState
-                                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-medium ${link.active
-                                                                ? 'z-10 bg-indigo-600 text-white'
-                                                                : 'bg-white text-gray-700 hover:bg-gray-50'
-                                                            } ${!link.url ? 'cursor-not-allowed opacity-50' : ''} ${index === 0 ? 'rounded-l-md' : ''
-                                                            } ${index === owners.links.length - 1 ? 'rounded-r-md' : ''} border border-gray-300`}
-                                                        dangerouslySetInnerHTML={{ __html: label }}
-                                                    />
-                                                );
-                                            })}
-                                        </nav>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        <Pagination
+                            links={owners.links}
+                            from={owners.from}
+                            to={owners.to}
+                            total={owners.total}
+                        />
                     </div>
                 </div>
             </div>
