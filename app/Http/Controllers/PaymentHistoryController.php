@@ -37,6 +37,11 @@ class PaymentHistoryController extends Controller
             $this->applyDateFilter($monthlyQuery, $startDate, $endDate);
             
             $monthlyPayments = $monthlyQuery->get()->map(function ($payment) {
+                // Verificar que la conexión exista
+                if (!$payment->waterConnection || !$payment->waterConnection->owner) {
+                    return null;
+                }
+                
                 return [
                     'id' => $payment->id,
                     'type' => 'monthly',
@@ -54,7 +59,7 @@ class PaymentHistoryController extends Controller
                     'user' => $payment->user,
                     'deleted_at' => $payment->deleted_at,
                 ];
-            });
+            })->filter();
             
             $allPayments = $allPayments->merge($monthlyPayments);
         }
@@ -68,6 +73,11 @@ class PaymentHistoryController extends Controller
             $this->applyDateFilter($otherQuery, $startDate, $endDate, 'payment_date');
             
             $otherPayments = $otherQuery->get()->map(function ($payment) {
+                // Verificar que la conexión exista
+                if (!$payment->waterConnection || !$payment->waterConnection->owner) {
+                    return null;
+                }
+                
                 return [
                     'id' => $payment->id,
                     'type' => 'other',
@@ -85,7 +95,7 @@ class PaymentHistoryController extends Controller
                     'user' => $payment->user,
                     'deleted_at' => $payment->deleted_at,
                 ];
-            });
+            })->filter();
             
             $allPayments = $allPayments->merge($otherPayments);
         }
@@ -121,6 +131,11 @@ class PaymentHistoryController extends Controller
             $this->applyDateFilter($installmentQuery, $startDate, $endDate);
             
             $installmentPayments = $installmentQuery->get()->map(function ($payment) {
+                // Verificar que el plan y la conexión existan
+                if (!$payment->installmentPlan || !$payment->installmentPlan->waterConnection) {
+                    return null;
+                }
+                
                 return [
                     'id' => $payment->id,
                     'type' => 'installment',
@@ -137,7 +152,7 @@ class PaymentHistoryController extends Controller
                     'user' => $payment->user,
                     'deleted_at' => null,
                 ];
-            });
+            })->filter(); // Eliminar elementos nulos
             
             $allPayments = $allPayments->merge($installmentPayments);
         }

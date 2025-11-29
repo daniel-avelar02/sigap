@@ -49,22 +49,16 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Punto de Cobro
                                 </NavLink>
                                 <NavLink
-                                    href={route('monthly-payments.index')}
-                                    active={route().current('monthly-payments.*')}
+                                    href={route('payment-history.index')}
+                                    active={route().current('payment-history.*')}
                                 >
-                                    Cobros Mensuales
+                                    Historial de Cobros
                                 </NavLink>
                                 <NavLink
                                     href={route('installment-plans.index')}
                                     active={route().current('installment-plans.*')}
                                 >
                                     Planes de Cuotas
-                                </NavLink>
-                                <NavLink
-                                    href={route('other-payments.index')}
-                                    active={route().current('other-payments.*')}
-                                >
-                                    Otros Pagos
                                 </NavLink>
                             </div>
                         </div>
@@ -189,22 +183,16 @@ export default function AuthenticatedLayout({ header, children }) {
                             Punto de Cobro
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
-                            href={route('monthly-payments.index')}
-                            active={route().current('monthly-payments.*')}
+                            href={route('payment-history.index')}
+                            active={route().current('payment-history.*')}
                         >
-                            Cobros Mensuales
+                            Historial de Cobros
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('installment-plans.index')}
                             active={route().current('installment-plans.*')}
                         >
                             Planes de Cuotas
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('other-payments.index')}
-                            active={route().current('other-payments.*')}
-                        >
-                            Otros Pagos
                         </ResponsiveNavLink>
                     </div>
 

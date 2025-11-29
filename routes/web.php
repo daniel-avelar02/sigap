@@ -4,6 +4,7 @@ use App\Http\Controllers\InstallmentPlanController;
 use App\Http\Controllers\MonthlyPaymentController;
 use App\Http\Controllers\OtherPaymentController;
 use App\Http\Controllers\OwnerController;
+use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\UnifiedPaymentController;
 use App\Http\Controllers\WaterConnectionController;
 use App\Http\Controllers\ProfileController;
@@ -48,11 +49,14 @@ Route::middleware('auth')->group(function () {
     // API para obtener números de propietario por comunidad
     Route::get('/api/water-connections/owner-numbers-by-community', [WaterConnectionController::class, 'getOwnerNumbersByCommunity'])->name('water-connections.owner-numbers-by-community');
 
-    // Rutas de pagos mensuales
-    Route::resource('monthly-payments', MonthlyPaymentController::class)->only(['index', 'create', 'store', 'show']);
+    // Rutas de pagos mensuales (solo crear, guardar y ver detalles - el index está en historial)
+    Route::resource('monthly-payments', MonthlyPaymentController::class)->only(['create', 'store', 'show']);
 
     // Rutas de pagos unificados (nuevo flujo multi-tipo)
     Route::resource('payments', UnifiedPaymentController::class)->only(['create', 'store', 'show']);
+
+    // Ruta de historial de cobros unificado (incluye pagos mensuales, otros pagos y cuotas)
+    Route::get('/payment-history', [PaymentHistoryController::class, 'index'])->name('payment-history.index');
 
     // Rutas de planes de cuotas
     Route::resource('installment-plans', InstallmentPlanController::class)->withTrashed(['show', 'edit']);
@@ -69,8 +73,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/installment-plans/by-connection/{waterConnectionId}', [InstallmentPlanController::class, 'getByConnection'])->name('installment-plans.by-connection');
     Route::get('/api/installment-plans/{installment_plan}/pending-installments', [InstallmentPlanController::class, 'getPendingInstallments'])->name('installment-plans.pending-installments');
     
-    // Rutas de otros pagos
-    Route::resource('other-payments', OtherPaymentController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
+    // Rutas de otros pagos (solo crear, guardar, ver detalles y eliminar - el index está en historial)
+    Route::resource('other-payments', OtherPaymentController::class)->only(['create', 'store', 'show', 'destroy']);
     Route::post('/other-payments/{id}/restore', [OtherPaymentController::class, 'restore'])->name('other-payments.restore');
     
     // API de otros pagos
