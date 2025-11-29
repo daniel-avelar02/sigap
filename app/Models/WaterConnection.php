@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class WaterConnection extends Model
@@ -153,7 +154,7 @@ class WaterConnection extends Model
         $this->installmentPlans()
              ->where('status', 'active')
              ->each(function($plan) use ($reason) {
-                 $plan->cancel($reason, auth()->id());
+                 $plan->cancel($reason, Auth::id());
              });
     }
 

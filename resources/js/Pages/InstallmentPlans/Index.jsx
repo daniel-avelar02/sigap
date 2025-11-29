@@ -65,7 +65,7 @@ export default function Index({ plans, filters, communities, planTypes, statuses
                     </h2>
                     <Link
                         href={route('installment-plans.create', getCurrentFilters())}
-                        className="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white hover:bg-gray-700"
+                        className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900"
                     >
                         Nuevo Plan
                     </Link>
@@ -79,6 +79,7 @@ export default function Index({ plans, filters, communities, planTypes, statuses
                     {/* Filtros */}
                     <div className="mb-6 bg-white p-6 shadow sm:rounded-lg">
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                            {/* Filtro de búsqueda */}
                             <div>
                                 <InputLabel htmlFor="search" value="Buscar" />
                                 <TextInput
@@ -90,7 +91,7 @@ export default function Index({ plans, filters, communities, planTypes, statuses
                                     className="mt-1 block w-full"
                                 />
                             </div>
-
+                            {/* Filtro por comunidad */}
                             <div>
                                 <InputLabel htmlFor="community" value="Comunidad" />
                                 <select
@@ -105,7 +106,7 @@ export default function Index({ plans, filters, communities, planTypes, statuses
                                     ))}
                                 </select>
                             </div>
-
+                            {/* Filtro por tipo de plan */}
                             <div>
                                 <InputLabel htmlFor="plan_type" value="Tipo de Plan" />
                                 <select
@@ -120,6 +121,7 @@ export default function Index({ plans, filters, communities, planTypes, statuses
                                     ))}
                                 </select>
                             </div>
+                            {/* Filtro por estado */}
                             <div>
                                 <InputLabel htmlFor="status" value="Estado" />
                                 <select
@@ -134,7 +136,7 @@ export default function Index({ plans, filters, communities, planTypes, statuses
                                     ))}
                                 </select>
                             </div>
-
+                            {/* Botón para limpiar filtros */}
                             <div className="flex items-end">
                                 <button
                                     onClick={handleReset}
@@ -142,7 +144,6 @@ export default function Index({ plans, filters, communities, planTypes, statuses
                                 >
                                     Limpiar filtros
                                 </button>
-
                             </div>
                         </div>
                     </div>
@@ -154,9 +155,8 @@ export default function Index({ plans, filters, communities, planTypes, statuses
                                 {/* Encabezado de la tabla */}
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Paja</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Paja de Agua</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Propietario</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Comunidad</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Tipo</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Estado</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Progreso</th>
@@ -169,25 +169,25 @@ export default function Index({ plans, filters, communities, planTypes, statuses
                                     {plans.data.length > 0 ? (
                                         plans.data.map((plan) => (
                                             <tr key={plan.id} className="hover:bg-gray-50">
-                                                {/* Paja */}
-                                                <td className="whitespace-nowrap px-6 py-4 font-mono text-sm font-medium text-gray-900">
-                                                    {plan.water_connection?.code}
+                                                {/* Número y comunidad de paja de agua */}
+                                                <td className="px-6 py-4 text-sm text-gray-900">
+                                                    <div className="flex flex-col">
+                                                        <div className="font-medium"> #{plan.water_connection.owner_number}</div>
+                                                        <div className="text-gray-500"><CommunityBadge community={plan.water_connection.community} size="sm" /></div>
+                                                    </div>
                                                 </td>
                                                 {/* Nombre y DUI del propietario */}
                                                 <td className="px-6 py-4">
-                                                    <div className="text-sm font-medium text-gray-900">
-                                                        {plan.water_connection?.owner?.name}
+                                                    <div className="text-sm font-medium text-gray-900 whitespace-normal">
+                                                        {plan.water_connection.owner.name}
                                                     </div>
-                                                    {plan.water_connection?.owner?.dui && (
+                                                    {plan.water_connection.owner?.dui && (
                                                         <div className="text-xs text-gray-500">
                                                             {formatDui(plan.water_connection.owner.dui)}
                                                         </div>
                                                     )}
                                                 </td>
-                                                {/* Comunidad */}
-                                                <td className="whitespace-nowrap px-6 py-4">
-                                                    <CommunityBadge community={plan.water_connection?.community} size="sm" />
-                                                </td>
+
                                                 {/* Tipo de plan */}
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                                     {planTypes[plan.plan_type]}

@@ -234,8 +234,6 @@ export default function Index({ otherPayments, filters, paymentTypes, communitie
                                                     </div>
                                                 </td>
 
-
-
                                                 {/* Tipo de pago */}
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm">
                                                     <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold bg-${getPaymentTypeBadgeColor(payment.payment_type)}-100 text-${getPaymentTypeBadgeColor(payment.payment_type)}-800`}>
@@ -255,7 +253,6 @@ export default function Index({ otherPayments, filters, paymentTypes, communitie
                                                         >
                                                             Ver comprobante
                                                         </Link>
-
                                                     </div>
                                                 </td>
                                             </tr>

@@ -16,10 +16,10 @@ export default function Show({ payment, relatedPayments }) {
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
                         Comprobante de Pago
                     </h2>
-                    <div className="flex gap-2 print:hidden">
+                    <div className="flex space-x-2">
                         <button
                             onClick={handlePrint}
-                            className="rounded-md bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-500"
+                            className="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white hover:bg-gray-700 print:hidden"
                         >
                             Imprimir
                         </button>
@@ -42,40 +42,46 @@ export default function Show({ payment, relatedPayments }) {
                         <div className="p-8">
                             {/* Logo, Encabezado y Número de Recibo */}
                             <div className="mb-8">
-                                <div className="flex items-center justify-between">
+                                <div className="grid grid-cols-3 gap-4 items-center">
                                     <div className="text-left">
                                         <p className="text-xs text-gray-600 mb-1">Recibo N°</p>
-                                        <p className="text-xl font-bold font-mono text-gray-900">
+                                        <p className="text-base font-bold font-mono text-gray-900">
                                             {payment.receipt_number}
                                         </p>
                                     </div>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center justify-center gap-3">
                                         <ApplicationLogo className="h-10 w-auto" />
                                         <h1 className="text-2xl font-bold text-gray-900">SIGAP</h1>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-xs text-gray-600 mb-1">Fecha de Pago</p>
-                                        <p className="text-xl font-bold text-gray-900">
+                                        <p className="text-xs text-gray-600 mb-1">Fecha y Hora de Pago</p>
+                                        <p className="text-base font-bold text-gray-900">
                                             {new Date(payment.payment_date).toLocaleDateString('es-SV', {
                                                 day: '2-digit',
                                                 month: '2-digit',
                                                 year: 'numeric'
                                             })}
                                         </p>
+                                        <p className="text-xs font-medium text-gray-700">
+                                            {new Date(payment.payment_date).toLocaleTimeString('es-SV', {
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="border-t border-b border-gray-200 py-4 mb-6">
+                            <div className=" py-1 mb-3">
                                 <h2 className="text-center text-xl font-semibold text-gray-900">
                                     COMPROBANTE DE PAGO
                                 </h2>
                             </div>
 
                             {/* Información del Pago */}
-                            <div className="grid grid-cols-2 gap-6 mb-6">
+                            <div className="grid grid-cols-2 gap-6 ">
                                 <div>
-                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">
+                                    <h3 className="text-sm font-semibold text-gray-700 ">
                                         Información de la Paja
                                     </h3>
                                     <div className="space-y-2">
@@ -95,7 +101,7 @@ export default function Show({ payment, relatedPayments }) {
                                 </div>
 
                                 <div>
-                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">
+                                    <h3 className="text-sm font-semibold text-gray-700">
                                         Propietario
                                     </h3>
                                     <div className="space-y-2">
@@ -116,7 +122,7 @@ export default function Show({ payment, relatedPayments }) {
                             </div>
 
                             {/* Detalles del Pago */}
-                            <div className="border-t border-gray-200 pt-6 mb-6">
+                            <div className="pt-6 mb-6">
                                 <h3 className="text-sm font-semibold text-gray-700 mb-3">
                                     Detalles del Pago
                                 </h3>
@@ -171,27 +177,9 @@ export default function Show({ payment, relatedPayments }) {
                                 </table>
                             </div>
 
-                            {/* Información adicional del pago */}
-                            <div className="border-t border-gray-200 pt-6 mb-6">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                                    Información Adicional
-                                </h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <span className="text-sm text-gray-600">Hora de Pago:</span>
-                                        <p className="font-medium text-gray-900">
-                                            {new Date(payment.payment_date).toLocaleTimeString('es-SV', {
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            })}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
                             {/* Información del Pagador */}
-                            <div className="border-t border-gray-200 pt-6 mb-6">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                            <div className="">
+                                <h3 className="text-sm font-semibold text-gray-700">
                                     Pagado por
                                 </h3>
                                 <div className="grid grid-cols-2 gap-4">
@@ -210,21 +198,9 @@ export default function Show({ payment, relatedPayments }) {
                                 </div>
                             </div>
 
-                            {/* Monto
-                            <div className="border-t border-gray-200 pt-6 mb-6">
-                                <div className="bg-indigo-50 rounded-lg p-6">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-lg font-semibold text-gray-700">Total Pagado:</span>
-                                        <span className="text-3xl font-bold text-indigo-600">
-                                            ${parseFloat(payment.total_amount).toFixed(2)}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div> */}
-
                             {/* Notas */}
                             {payment.notes && (
-                                <div className="border-t border-gray-200 pt-6 mb-6">
+                                <div className="pt-6 mb-6">
                                     <h3 className="text-sm font-semibold text-gray-700 mb-2">
                                         Observaciones:
                                     </h3>
@@ -235,21 +211,23 @@ export default function Show({ payment, relatedPayments }) {
                             )}
 
                             {/* Pie del Comprobante */}
-                            <div className="border-t border-gray-200 pt-6 text-sm text-gray-600">
-                                <div className="grid grid-cols-2 gap-4">
+                            <div className="text-sm text-gray-600">
+                                {/* <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <p>Registrado por: <span className="font-medium text-gray-900">{payment.user.name}</span></p>
                                     </div>
-                                    {/* <div className="text-right">
+                                    <div className="text-right">
                                         <p>Fecha de emisión:</p>
                                         <p className="font-medium text-gray-900">
                                             {new Date(payment.created_at).toLocaleDateString('es-SV')}
                                         </p>
-                                    </div> */}
-                                </div>
+                                    </div>
+                                </div> */}
                                 <div className="mt-6 text-center text-xs text-gray-500">
-                                    <p>Este es un comprobante oficial del Sistema de Gestión de Agua Potable</p>
-                                    <p className="mt-1 font-medium">Conserve este comprobante para cualquier aclaración</p>
+                                    <p>Cton. Valle La Puerta, 1ra entrada, Tacuba, Ahuachapan.</p>
+                                    <p>6830-8753   |   adescobd@gmail.com</p>
+
+                                    <p className="mt-1 font-medium">Este es un comprobante de pago, su factura será enviada a su correo electrónico.</p>
                                 </div>
                             </div>
                         </div>

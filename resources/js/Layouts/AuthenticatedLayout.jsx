@@ -43,6 +43,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Pajas de Agua
                                 </NavLink>
                                 <NavLink
+                                    href={route('payments.create')}
+                                    active={route().current('payments.*')}
+                                >
+                                    Punto de Cobro
+                                </NavLink>
+                                <NavLink
                                     href={route('monthly-payments.index')}
                                     active={route().current('monthly-payments.*')}
                                 >
@@ -177,7 +183,13 @@ export default function AuthenticatedLayout({ header, children }) {
                             Pajas de Agua
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
-                            href={route('monthly-payments.create')}
+                            href={route('payments.create')}
+                            active={route().current('payments.*')}
+                        >
+                            Punto de Cobro
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('monthly-payments.index')}
                             active={route().current('monthly-payments.*')}
                         >
                             Cobros Mensuales

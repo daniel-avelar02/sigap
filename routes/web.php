@@ -4,6 +4,7 @@ use App\Http\Controllers\InstallmentPlanController;
 use App\Http\Controllers\MonthlyPaymentController;
 use App\Http\Controllers\OtherPaymentController;
 use App\Http\Controllers\OwnerController;
+use App\Http\Controllers\UnifiedPaymentController;
 use App\Http\Controllers\WaterConnectionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -49,6 +50,9 @@ Route::middleware('auth')->group(function () {
 
     // Rutas de pagos mensuales
     Route::resource('monthly-payments', MonthlyPaymentController::class)->only(['index', 'create', 'store', 'show']);
+
+    // Rutas de pagos unificados (nuevo flujo multi-tipo)
+    Route::resource('payments', UnifiedPaymentController::class)->only(['create', 'store', 'show']);
 
     // Rutas de planes de cuotas
     Route::resource('installment-plans', InstallmentPlanController::class)->withTrashed(['show', 'edit']);

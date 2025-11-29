@@ -70,16 +70,29 @@ class OtherPayment extends Model
 
     /**
      * Generar número de recibo único.
+     * Usa numeración global compartida con Payment, MonthlyPayment y InstallmentPlanPayment.
      */
     public static function generateReceiptNumber(): string
     {
-        $lastPayment = self::withTrashed()
-            ->orderBy('id', 'desc')
-            ->first();
+        $lastMonthlyPayment = MonthlyPayment::orderBy('id', 'desc')->first();
+        $lastInstallmentPayment = InstallmentPlanPayment::orderBy('id', 'desc')->first();
+        $lastOtherPayment = self::withTrashed()->orderBy('id', 'desc')->first();
+        $lastPayment = Payment::orderBy('id', 'desc')->first();
 
-        $nextNumber = $lastPayment ? $lastPayment->id + 1 : 1;
+        $lastMonthlyNumber = $lastMonthlyPayment ? (int) $lastMonthlyPayment->receipt_number : 0;
+        $lastInstallmentNumber = $lastInstallmentPayment ? (int) $lastInstallmentPayment->receipt_number : 0;
+        $lastPaymentNumber = $lastPayment ? (int) $lastPayment->receipt_number : 0;
         
-        return 'OP-' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+        // Para OtherPayment histórico, remover el prefijo 'OP-' si existe
+        $lastOtherNumber = 0;
+        if ($lastOtherPayment && $lastOtherPayment->receipt_number) {
+            $otherNumber = str_replace('OP-', '', $lastOtherPayment->receipt_number);
+            $lastOtherNumber = (int) $otherNumber;
+        }
+
+        $nextNumber = max($lastMonthlyNumber, $lastInstallmentNumber, $lastOtherNumber, $lastPaymentNumber) + 1;
+        
+        return str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
     }
 
     /**

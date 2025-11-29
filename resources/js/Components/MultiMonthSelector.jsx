@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import InputLabel from './InputLabel';
 import InputError from './InputError';
 
-export default function MultiMonthSelector({ 
-    pendingMonths = [], 
-    onSelectionChange, 
+export default function MultiMonthSelector({
+    pendingMonths = [],
+    onSelectionChange,
     monthlyFee,
-    error 
+    error,
+    disabledMonths = [],
+    selectedMonths: externalSelectedMonths = null
 }) {
     const [selectedMonths, setSelectedMonths] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
@@ -20,6 +22,13 @@ export default function MultiMonthSelector({
     // Separar meses pendientes de futuros
     const pendingOnly = pendingMonths.filter(pm => pm.is_pending || pm.type === 'pending');
     const futureOnly = pendingMonths.filter(pm => pm.is_future || pm.type === 'future');
+    
+    // Sincronizar con el estado externo si se proporciona (solo una vez cuando cambia)
+    useEffect(() => {
+        if (externalSelectedMonths !== null && JSON.stringify(externalSelectedMonths) !== JSON.stringify(selectedMonths)) {
+            setSelectedMonths(externalSelectedMonths);
+        }
+    }, [externalSelectedMonths]);
 
     // Actualizar cuando cambian los meses pendientes
     useEffect(() => {
@@ -30,8 +39,10 @@ export default function MultiMonthSelector({
 
     // Notificar cambios al padre
     useEffect(() => {
-        onSelectionChange(selectedMonths);
-    }, [selectedMonths]);
+        if (onSelectionChange) {
+            onSelectionChange(selectedMonths);
+        }
+    }, [selectedMonths, onSelectionChange]);
 
     const handleToggleMonth = (monthYear) => {
         setSelectedMonths(prev => {
@@ -107,30 +118,32 @@ export default function MultiMonthSelector({
                         {pendingOnly.map((pm, index) => {
                             const monthYear = `${pm.year}-${pm.month}`;
                             const isSelected = selectedMonths.includes(monthYear);
-                            
+                            const isDisabled = disabledMonths.includes(monthYear);
+
                             return (
                                 <label
                                     key={index}
-                                    className={`relative flex flex-col items-center justify-center p-3 rounded-md cursor-pointer transition-all ${
-                                        isSelected
-                                            ? 'bg-indigo-600 text-white shadow-md scale-105'
-                                            : 'bg-white border border-red-300 hover:border-red-400 hover:shadow-sm'
-                                    }`}
+                                    className={`relative flex flex-col items-center justify-center p-3 rounded-md transition-all ${
+                                        isDisabled
+                                            ? 'bg-gray-100 border border-gray-300 opacity-50 cursor-not-allowed'
+                                            : isSelected
+                                            ? 'bg-indigo-600 text-white shadow-md scale-105 cursor-pointer'
+                                            : 'bg-white border border-red-300 hover:border-red-400 hover:shadow-sm cursor-pointer'
+                                        }`}
                                 >
                                     <input
                                         type="checkbox"
                                         checked={isSelected}
+                                        disabled={isDisabled}
                                         onChange={() => handleToggleMonth(monthYear)}
-                                        className="absolute top-2 right-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                        className="absolute top-2 right-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-50"
                                     />
-                                    <span className={`text-xs font-semibold text-center ${
-                                        isSelected ? 'text-white' : 'text-red-900'
-                                    }`}>
+                                    <span className={`text-xs font-semibold text-center ${isSelected ? 'text-white' : 'text-red-900'
+                                        }`}>
                                         {pm.period}
                                     </span>
-                                    <span className={`text-xs mt-1 ${
-                                        isSelected ? 'text-indigo-100' : 'text-red-600'
-                                    }`}>
+                                    <span className={`text-xs mt-1 ${isSelected ? 'text-indigo-100' : 'text-red-600'
+                                        }`}>
                                         ${parseFloat(monthlyFee).toFixed(2)}
                                     </span>
                                 </label>
@@ -148,10 +161,10 @@ export default function MultiMonthSelector({
                         onClick={() => setShowFutureMonths(!showFutureMonths)}
                         className="flex items-center gap-2 text-sm font-medium text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 border border-green-300 rounded-lg px-4 py-2 transition-colors w-full justify-center"
                     >
-                        <svg 
+                        <svg
                             className={`w-4 h-4 transition-transform ${showFutureMonths ? 'rotate-180' : ''}`}
-                            fill="none" 
-                            stroke="currentColor" 
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -174,30 +187,32 @@ export default function MultiMonthSelector({
                                 {futureOnly.map((pm, index) => {
                                     const monthYear = `${pm.year}-${pm.month}`;
                                     const isSelected = selectedMonths.includes(monthYear);
-                                    
+                                    const isDisabled = disabledMonths.includes(monthYear);
+
                                     return (
                                         <label
                                             key={index}
-                                            className={`relative flex flex-col items-center justify-center p-3 rounded-md cursor-pointer transition-all ${
-                                                isSelected
-                                                    ? 'bg-indigo-600 text-white shadow-md scale-105'
-                                                    : 'bg-white border border-green-300 hover:border-green-400 hover:shadow-sm'
-                                            }`}
+                                            className={`relative flex flex-col items-center justify-center p-3 rounded-md transition-all ${
+                                                isDisabled
+                                                    ? 'bg-gray-100 border border-gray-300 opacity-50 cursor-not-allowed'
+                                                    : isSelected
+                                                    ? 'bg-indigo-600 text-white shadow-md scale-105 cursor-pointer'
+                                                    : 'bg-white border border-green-300 hover:border-green-400 hover:shadow-sm cursor-pointer'
+                                                }`}
                                         >
                                             <input
                                                 type="checkbox"
                                                 checked={isSelected}
+                                                disabled={isDisabled}
                                                 onChange={() => handleToggleMonth(monthYear)}
-                                                className="absolute top-2 right-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                className="absolute top-2 right-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-50"
                                             />
-                                            <span className={`text-xs font-semibold text-center ${
-                                                isSelected ? 'text-white' : 'text-green-900'
-                                            }`}>
+                                            <span className={`text-xs font-semibold text-center ${isSelected ? 'text-white' : 'text-green-900'
+                                                }`}>
                                                 {pm.period}
                                             </span>
-                                            <span className={`text-xs mt-1 ${
-                                                isSelected ? 'text-indigo-100' : 'text-green-600'
-                                            }`}>
+                                            <span className={`text-xs mt-1 ${isSelected ? 'text-indigo-100' : 'text-green-600'
+                                                }`}>
                                                 ${parseFloat(monthlyFee).toFixed(2)}
                                             </span>
                                             {!isSelected && (
@@ -213,21 +228,17 @@ export default function MultiMonthSelector({
                     )}
                 </div>
             )}
-
+{}
+            {/* Total a pagar y resumen */}
             {selectedMonths.length > 0 && (
-                <div className="rounded-lg bg-indigo-50 border border-indigo-200 p-4">
+                <div className="rounded-lg bg-indigo-50 border border-indigo-200 p-3">
                     <div className="flex justify-between items-center">
-                        <div>
-                            <p className="text-sm text-indigo-700">
-                                {selectedMonths.length} {selectedMonths.length === 1 ? 'mes seleccionado' : 'meses seleccionados'}
-                            </p>
-                            {/* <p className="text-xs text-indigo-600 mt-1">
-                                Se generará un recibo por cada mes
-                            </p> */}
-                        </div>
+                        <p className="text-sm text-indigo-700">
+                            {selectedMonths.length} {selectedMonths.length === 1 ? 'mes seleccionado' : 'meses seleccionados'}
+                        </p>
                         <div className="text-right">
-                            <p className="text-sm text-indigo-700">Total a pagar:</p>
-                            <p className="text-2xl font-bold text-indigo-900">
+                            <p className="text-xs text-indigo-600">Total:</p>
+                            <p className="text-lg font-bold text-indigo-900">
                                 ${totalAmount.toFixed(2)}
                             </p>
                         </div>

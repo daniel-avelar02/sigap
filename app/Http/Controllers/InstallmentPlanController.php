@@ -11,6 +11,7 @@ use App\Models\SystemSetting;
 use App\Models\WaterConnection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -51,15 +52,6 @@ class InstallmentPlanController extends Controller
         }
 
         $plans = $query->paginate(15)->withQueryString();
-
-        // Calcular totales agregados por cuota para cada plan
-        $plans->getCollection()->transform(function ($plan) {
-            $plan->total_paid = $plan->total_paid;
-            $plan->balance = $plan->balance;
-            $plan->installments_paid_count = $plan->installments_paid_count;
-            $plan->progress_percentage = $plan->progress_percentage;
-            return $plan;
-        });
 
         return Inertia::render('InstallmentPlans/Index', [
             'plans' => $plans,
@@ -130,15 +122,6 @@ class InstallmentPlanController extends Controller
                 ];
             }
         }
-
-        // Agregar atributos calculados
-        $installmentPlan->total_paid = $installmentPlan->total_paid;
-        $installmentPlan->balance = $installmentPlan->balance;
-        $installmentPlan->installments_paid_count = $installmentPlan->installments_paid_count;
-        $installmentPlan->installments_pending_count = $installmentPlan->installments_pending_count;
-        $installmentPlan->progress_percentage = $installmentPlan->progress_percentage;
-        $installmentPlan->plan_type_name = $installmentPlan->plan_type_name;
-        $installmentPlan->status_name = $installmentPlan->status_name;
 
         return Inertia::render('InstallmentPlans/Show', [
             'plan' => $installmentPlan,
@@ -228,7 +211,7 @@ class InstallmentPlanController extends Controller
             'cancellation_reason.max' => 'El motivo no puede exceder 1000 caracteres.',
         ]);
 
-        $installmentPlan->cancel($request->cancellation_reason, auth()->id());
+        $installmentPlan->cancel($request->cancellation_reason, userId: Auth::id());
 
         return redirect()
             ->route('installment-plans.show', $installmentPlan->id)
@@ -277,12 +260,6 @@ class InstallmentPlanController extends Controller
             }
         }
 
-        // Agregar atributos calculados
-        $installmentPlan->total_paid = $installmentPlan->total_paid;
-        $installmentPlan->balance = $installmentPlan->balance;
-        $installmentPlan->progress_percentage = $installmentPlan->progress_percentage;
-        $installmentPlan->plan_type_name = $installmentPlan->plan_type_name;
-
         return Inertia::render('InstallmentPlans/PaymentCreate', [
             'plan' => $installmentPlan,
             'pendingInstallments' => $pendingInstallments,
@@ -310,7 +287,7 @@ class InstallmentPlanController extends Controller
         $validated['receipt_number'] = InstallmentPlanPayment::generateReceiptNumber();
         
         // Asignar usuario actual
-        $validated['user_id'] = auth()->id();
+        $validated['user_id'] = Auth::id();
         
         // Asegurar que esté asociado al plan correcto
         $validated['installment_plan_id'] = $installmentPlan->id;
@@ -338,14 +315,6 @@ class InstallmentPlanController extends Controller
         $installmentPlan->load('waterConnection.owner');
         $payment->load('user');
 
-        // Agregar atributos calculados al plan
-        $installmentPlan->total_paid = $installmentPlan->total_paid;
-        $installmentPlan->balance = $installmentPlan->balance;
-        $installmentPlan->installments_paid_count = $installmentPlan->installments_paid_count;
-        $installmentPlan->progress_percentage = $installmentPlan->progress_percentage;
-        $installmentPlan->plan_type_name = $installmentPlan->plan_type_name;
-        $installmentPlan->status_name = $installmentPlan->status_name;
-
         return Inertia::render('InstallmentPlans/PaymentReceipt', [
             'plan' => $installmentPlan,
             'payment' => $payment,
@@ -369,6 +338,7 @@ class InstallmentPlanController extends Controller
                     'status' => $plan->status,
                     'status_name' => $plan->status_name,
                     'total_amount' => $plan->total_amount,
+                    'installment_amount' => $plan->installment_amount,
                     'total_paid' => $plan->total_paid,
                     'balance' => $plan->balance,
                     'installment_count' => $plan->installment_count,

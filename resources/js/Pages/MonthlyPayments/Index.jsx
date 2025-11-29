@@ -232,7 +232,7 @@ export default function Index({ payments, pageTotal, filters, communities }) {
                                                     )}
                                                 </td>
                                                 {/* Monto total */}
-                                                <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium text-gray-900">
+                                                <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold text-gray-900">
                                                     ${parseFloat(payment.total_amount).toFixed(2)}
                                                 </td>
                                                 {/* Acciones */}

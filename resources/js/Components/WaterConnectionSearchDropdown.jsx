@@ -67,7 +67,8 @@ export default function WaterConnectionSearchDropdown({
     }, [query]);
 
     const handleSelect = (waterConnection) => {
-        setQuery(`#${waterConnection.owner_number} - ${waterConnection.owner.name}`);
+        setQuery('');
+        setResults([]);
         setShowDropdown(false);
         onSelect(waterConnection);
     };
@@ -129,11 +130,11 @@ export default function WaterConnectionSearchDropdown({
                                 <div className="text-sm text-gray-500">
                                     {wc.owner.formatted_dui}
                                 </div>
-                                {wc.has_pending_months && (
+                                {/* {wc.has_pending_months && (
                                     <div className="mt-1 text-xs text-red-600 font-medium">
                                         ⚠ {wc.pending_months.filter(m => m.is_pending).length} {wc.pending_months.filter(m => m.is_pending).length === 1 ? 'mes pendiente' : 'meses pendientes'}
                                     </div>
-                                )}
+                                )} */}
                             </div>
                         </button>
                     ))}

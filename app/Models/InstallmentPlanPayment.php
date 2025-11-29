@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 
 class InstallmentPlanPayment extends Model
 {
@@ -57,21 +58,30 @@ class InstallmentPlanPayment extends Model
     /**
      * Generar el siguiente número de recibo.
      * 
-     * Reutiliza el sistema de MonthlyPayment para mantener
-     * numeración secuencial global.
+     * Usa numeración global compartida con Payment, MonthlyPayment y OtherPayment.
      *
      * @return string
      */
     public static function generateReceiptNumber(): string
     {
-        // Buscar el último número en ambas tablas
+        // Buscar el último número en todas las tablas
         $lastMonthlyPayment = MonthlyPayment::orderBy('id', 'desc')->first();
         $lastInstallmentPayment = self::orderBy('id', 'desc')->first();
+        $lastOtherPayment = OtherPayment::withTrashed()->orderBy('id', 'desc')->first();
+        $lastPayment = Payment::orderBy('id', 'desc')->first();
 
         $lastMonthlyNumber = $lastMonthlyPayment ? (int) $lastMonthlyPayment->receipt_number : 0;
         $lastInstallmentNumber = $lastInstallmentPayment ? (int) $lastInstallmentPayment->receipt_number : 0;
+        $lastPaymentNumber = $lastPayment ? (int) $lastPayment->receipt_number : 0;
+        
+        // Para OtherPayment, remover el prefijo 'OP-' si existe
+        $lastOtherNumber = 0;
+        if ($lastOtherPayment && $lastOtherPayment->receipt_number) {
+            $otherNumber = str_replace('OP-', '', $lastOtherPayment->receipt_number);
+            $lastOtherNumber = (int) $otherNumber;
+        }
 
-        $nextNumber = max($lastMonthlyNumber, $lastInstallmentNumber) + 1;
+        $nextNumber = max($lastMonthlyNumber, $lastInstallmentNumber, $lastOtherNumber, $lastPaymentNumber) + 1;
 
         return str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
     }
@@ -85,7 +95,7 @@ class InstallmentPlanPayment extends Model
 
         // Después de crear un pago, actualizar el estado del plan
         static::created(function ($payment) {
-            $payment->installmentPlan->updatePlanStatus(auth()->id());
+            $payment->installmentPlan->updatePlanStatus(Auth::id());
             $payment->installmentPlan->updateWaterConnectionStatus();
         });
 
