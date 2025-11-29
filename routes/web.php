@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InstallmentPlanController;
 use App\Http\Controllers\MonthlyPaymentController;
 use App\Http\Controllers\OtherPaymentController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\UnifiedPaymentController;
 use App\Http\Controllers\WaterConnectionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -20,9 +22,9 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -32,20 +34,20 @@ Route::middleware('auth')->group(function () {
     // Rutas de propietarios
     Route::resource('owners', OwnerController::class)->withTrashed(['show', 'edit']);
     Route::post('/owners/{id}/restore', [OwnerController::class, 'restore'])->name('owners.restore');
-    
+
     // API de búsqueda de propietarios
     Route::get('/api/owners/search', [OwnerController::class, 'search'])->name('owners.search');
 
     // Rutas de pajas de agua
     Route::resource('water-connections', WaterConnectionController::class)->withTrashed(['show', 'edit']);
     Route::post('/water-connections/{id}/restore', [WaterConnectionController::class, 'restore'])->name('water-connections.restore');
-    
+
     // API de búsqueda de pajas de agua
     Route::get('/api/water-connections/search', [WaterConnectionController::class, 'search'])->name('water-connections.search');
-    
+
     // API para búsqueda de pajas para punto de cobro
     Route::get('/api/water-connections/search-for-payment', [WaterConnectionController::class, 'searchForPayment'])->name('water-connections.search-payment');
-    
+
     // API para obtener números de propietario por comunidad
     Route::get('/api/water-connections/owner-numbers-by-community', [WaterConnectionController::class, 'getOwnerNumbersByCommunity'])->name('water-connections.owner-numbers-by-community');
 
@@ -63,23 +65,28 @@ Route::middleware('auth')->group(function () {
     Route::post('/installment-plans/{id}/restore', [InstallmentPlanController::class, 'restore'])->name('installment-plans.restore');
     Route::post('/installment-plans/{installment_plan}/cancel', [InstallmentPlanController::class, 'cancel'])->name('installment-plans.cancel');
     Route::post('/installment-plans/{installment_plan}/reactivate', [InstallmentPlanController::class, 'reactivate'])->name('installment-plans.reactivate');
-    
+
     // Rutas de pagos de cuotas
     Route::get('/installment-plans/{installment_plan}/create-payment', [InstallmentPlanController::class, 'createPayment'])->name('installment-plans.create-payment');
     Route::post('/installment-plans/{installment_plan}/payments', [InstallmentPlanController::class, 'storePayment'])->name('installment-plans.store-payment');
     Route::get('/installment-plans/{installment_plan}/payments/{payment}/receipt', [InstallmentPlanController::class, 'showPaymentReceipt'])->name('installment-plans.payment-receipt');
-    
+
     // API de planes de cuotas
     Route::get('/api/installment-plans/by-connection/{waterConnectionId}', [InstallmentPlanController::class, 'getByConnection'])->name('installment-plans.by-connection');
     Route::get('/api/installment-plans/{installment_plan}/pending-installments', [InstallmentPlanController::class, 'getPendingInstallments'])->name('installment-plans.pending-installments');
-    
+
     // Rutas de otros pagos (solo crear, guardar, ver detalles y eliminar - el index está en historial)
     Route::resource('other-payments', OtherPaymentController::class)->only(['create', 'store', 'show', 'destroy']);
     Route::post('/other-payments/{id}/restore', [OtherPaymentController::class, 'restore'])->name('other-payments.restore');
-    
+
     // API de otros pagos
     Route::get('/api/other-payments/by-connection', [OtherPaymentController::class, 'getByWaterConnection'])->name('other-payments.by-connection');
     Route::get('/api/other-payments/stats-by-type', [OtherPaymentController::class, 'getStatsByType'])->name('other-payments.stats-by-type');
+
+    // Rutas de reportes
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export-excel', [ReportController::class, 'exportExcel'])->name('reports.export-excel');
+    Route::get('/reports/export-pdf', [ReportController::class, 'exportPdf'])->name('reports.export-pdf');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

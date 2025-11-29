@@ -73,7 +73,7 @@ class UnifiedPaymentController extends Controller
                 'total_amount' => $totalAmount,
                 'payer_name' => $request->input('payer_name'),
                 'payer_dui' => $request->input('payer_dui'),
-                'payment_date' => now()->toDateString(),
+                'payment_date' => now(),
                 'notes' => $request->input('notes'),
                 'user_id' => Auth::id(),
             ]);
@@ -154,7 +154,7 @@ class UnifiedPaymentController extends Controller
             'payment_month' => $paymentMonth,
             'payment_year' => $paymentYear,
             'months_paid' => $monthsPaid,
-            'payment_date' => $request->input('payment_date') ?? now()->toDateString(),
+            'payment_date' => $request->input('payment_date') ?? now(),
             'receipt_number' => $receiptNumber,
             'payment_group_id' => $paymentGroupId,
             'months_count' => $monthsCount,
@@ -198,7 +198,7 @@ class UnifiedPaymentController extends Controller
             $installmentPayment = InstallmentPlanPayment::create([
                 'installment_plan_id' => $planId,
                 'installment_number' => $installmentNumber,
-                'payment_date' => $request->input('payment_date') ?? now()->toDateString(),
+                'payment_date' => $request->input('payment_date') ?? now(),
                 'receipt_number' => $receiptNumber,
                 'payer_name' => $request->input('payer_name'),
                 'payer_dui' => $request->input('payer_dui'),
@@ -243,7 +243,7 @@ class UnifiedPaymentController extends Controller
             'payer_dui' => $request->input('payer_dui'),
             'additional_notes' => $item['additional_notes'] ?? null,
             'receipt_number' => $receiptNumber,
-            'payment_date' => $request->input('payment_date') ?? now()->toDateString(),
+            'payment_date' => $request->input('payment_date') ?? now(),
             'user_id' => Auth::id(),
         ]);
 

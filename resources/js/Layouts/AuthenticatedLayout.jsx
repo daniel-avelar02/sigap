@@ -55,6 +55,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Historial de Cobros
                                 </NavLink>
                                 <NavLink
+                                    href={route('reports.index')}
+                                    active={route().current('reports.*')}
+                                >
+                                    Reportes
+                                </NavLink>
+                                <NavLink
                                     href={route('installment-plans.index')}
                                     active={route().current('installment-plans.*')}
                                 >
@@ -187,6 +193,12 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('payment-history.*')}
                         >
                             Historial de Cobros
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('reports.index')}
+                            active={route().current('reports.*')}
+                        >
+                            Reportes
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('installment-plans.index')}
