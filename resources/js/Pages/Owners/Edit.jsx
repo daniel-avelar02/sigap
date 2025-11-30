@@ -26,15 +26,18 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import DuiInput from '@/Components/DuiInput';
+import TaxIdInput from '@/Components/TaxIdInput';
 import PhoneInput from '@/Components/PhoneInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function Edit({ owner, communities, filters = {} }) {
+export default function Edit({ owner, communities, ownerTypes, filters = {} }) {
 
     const { data, setData, patch, processing, errors } = useForm({
         name: owner.name || '',
+        owner_type: owner.owner_type || 'natural',
         dui: owner.dui || '',
+        tax_id: owner.tax_id || '',
         phone: owner.phone || '',
         email: owner.email || '',
         address: owner.address || '',
@@ -71,7 +74,7 @@ export default function Edit({ owner, communities, filters = {} }) {
                             <div className="space-y-6">
                                 {/* Nombre */}
                                 <div>
-                                    <InputLabel htmlFor="name" value="Nombre completo" />
+                                    <InputLabel htmlFor="name" value="Nombre completo / Razón social" />
                                     <TextInput
                                         id="name"
                                         type="text"
@@ -84,28 +87,59 @@ export default function Edit({ owner, communities, filters = {} }) {
                                     <InputError message={errors.name} className="mt-2" />
                                 </div>
 
-                                {/* DUI */}
+                                {/* Tipo de propietario */}
                                 <div>
-                                    <InputLabel htmlFor="dui" value="DUI (9 dígitos)" />
-                                    <DuiInput
-                                        id="dui"
-                                        value={data.dui}
-                                        onChange={(e) => setData('dui', e.target.value)}
-                                        className="mt-1 block w-full"
+                                    <InputLabel htmlFor="owner_type" value="Tipo de propietario *" />
+                                    <select
+                                        id="owner_type"
+                                        value={data.owner_type}
+                                        onChange={(e) => setData('owner_type', e.target.value)}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                         required
-                                    />
-                                    <InputError message={errors.dui} className="mt-2" />
+                                    >
+                                        {Object.entries(ownerTypes).map(([value, label]) => (
+                                            <option key={value} value={value}>
+                                                {label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError message={errors.owner_type} className="mt-2" />
                                 </div>
+
+                                {/* DUI o NIT según el tipo */}
+                                {data.owner_type === 'natural' ? (
+                                    <div>
+                                        <InputLabel htmlFor="dui" value="DUI (9 dígitos, opcional)" />
+                                        <DuiInput
+                                            id="dui"
+                                            value={data.dui}
+                                            onChange={(e) => setData('dui', e.target.value)}
+                                            className="mt-1 block w-full"
+                                        />
+                                        <InputError message={errors.dui} className="mt-2" />
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <InputLabel htmlFor="tax_id" value="NIT (opcional)" />
+                                        <TaxIdInput
+                                            id="tax_id"
+                                            value={data.tax_id}
+                                            onChange={(e) => setData('tax_id', e.target.value)}
+                                            className="mt-1 block w-full"
+                                        />
+                                        <p className="mt-1 text-xs text-gray-500">Formato: 0210-090676-001-4</p>
+                                        <InputError message={errors.tax_id} className="mt-2" />
+                                    </div>
+                                )}
 
                                 {/* Teléfono */}
                                 <div>
-                                    <InputLabel htmlFor="phone" value="Teléfono (8 dígitos)" />
+                                    <InputLabel htmlFor="phone" value="Teléfono (8 dígitos, opcional)" />
                                     <PhoneInput
                                         id="phone"
                                         value={data.phone}
                                         onChange={(e) => setData('phone', e.target.value)}
                                         className="mt-1 block w-full"
-                                        required
                                     />
                                     <InputError message={errors.phone} className="mt-2" />
                                 </div>
@@ -139,7 +173,7 @@ export default function Edit({ owner, communities, filters = {} }) {
 
                                 {/* Comunidad */}
                                 <div>
-                                    <InputLabel htmlFor="community" value="Comunidad" />
+                                    <InputLabel htmlFor="community" value="Comunidad *" />
                                     <select
                                         id="community"
                                         value={data.community}

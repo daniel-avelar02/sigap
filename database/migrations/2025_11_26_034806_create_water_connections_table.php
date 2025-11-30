@@ -25,6 +25,7 @@ return new class extends Migration
                 'San Francisco',
                 'San Rafael',
                 'San Rafael (Los Pinos)',
+                'San Rafael (Los Pinos Cantarera)',
             ]);
             $table->text('location_description')->nullable()->comment('Descripción de la ubicación de la paja');
             $table->enum('status', ['activa', 'suspendida'])->default('activa')->comment('Estado operativo de la paja');

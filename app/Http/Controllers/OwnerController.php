@@ -61,6 +61,7 @@ class OwnerController extends Controller
     {
         return Inertia::render('Owners/Create', [
             'communities' => Owner::COMMUNITIES,
+            'ownerTypes' => Owner::OWNER_TYPES,
             'filters' => $request->only(['search', 'community', 'status']),
         ]);
     }
@@ -95,11 +96,12 @@ class OwnerController extends Controller
     /**
      * Mostrar el formulario para editar el propietario especificado.
      */
-    public function edit(Request $request, Owner $owner): Response
+    public function edit(Owner $owner, Request $request): Response
     {
         return Inertia::render('Owners/Edit', [
             'owner' => $owner,
             'communities' => Owner::COMMUNITIES,
+            'ownerTypes' => Owner::OWNER_TYPES,
             'filters' => $request->only(['search', 'community', 'status']),
         ]);
     }

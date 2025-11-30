@@ -27,6 +27,7 @@ return new class extends Migration
                 'San Francisco',
                 'San Rafael',
                 'San Rafael (Los Pinos)',
+                'San Rafael (Los Pinos Cantarera)',
             ]);
             $table->softDeletes();
             $table->timestamps();

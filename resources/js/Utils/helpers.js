@@ -5,11 +5,16 @@
  * @returns {string|null} DUI formateado con guion
  */
 export function formatDui(dui) {
-    if (!dui || dui.length !== 9) {
+    if (!dui) return dui;
+    
+    // Limpiar guiones existentes
+    const clean = dui.replace(/-/g, '');
+    
+    if (clean.length !== 9) {
         return dui;
     }
 
-    return `${dui.substring(0, 8)}-${dui.substring(8, 9)}`;
+    return `${clean.substring(0, 8)}-${clean.substring(8, 9)}`;
 }
 
 // Alias para compatibilidad
@@ -24,6 +29,37 @@ export const formatDUI = formatDui;
 export function cleanDui(dui) {
     if (!dui) return '';
     return dui.replace(/[-\s]/g, '');
+}
+
+/**
+ * Formatea un NIT (Número de Identificación Tributaria) al formato ####-######-###-#
+ * 
+ * @param {string|null} taxId - NIT de 14 dígitos
+ * @returns {string|null} NIT formateado con guiones
+ */
+export function formatTaxId(taxId) {
+    if (!taxId) return taxId;
+    
+    // Limpiar guiones existentes
+    const clean = taxId.replace(/-/g, '');
+    
+    if (clean.length !== 14) {
+        return taxId;
+    }
+
+    // Formato: 0210-090676-001-4
+    return `${clean.substring(0, 4)}-${clean.substring(4, 10)}-${clean.substring(10, 13)}-${clean.substring(13, 14)}`;
+}
+
+/**
+ * Limpia el NIT removiendo guiones y espacios
+ * 
+ * @param {string} taxId - NIT con o sin formato
+ * @returns {string} NIT sin formato (solo dígitos)
+ */
+export function cleanTaxId(taxId) {
+    if (!taxId) return '';
+    return taxId.replace(/[-\s]/g, '');
 }
 
 /**

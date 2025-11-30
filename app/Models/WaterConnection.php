@@ -26,6 +26,7 @@ class WaterConnection extends Model
         'San Francisco',
         'San Rafael',
         'San Rafael (Los Pinos)',
+        'San Rafael (Los Pinos Cantarera)',
     ];
 
     /**

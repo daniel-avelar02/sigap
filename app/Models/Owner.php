@@ -12,7 +12,15 @@ class Owner extends Model
     use HasFactory, SoftDeletes;
 
     /**
-     * Las 8 comunidades de la asociación de agua
+     * Tipos de propietarios
+     */
+    const OWNER_TYPES = [
+        'natural' => 'Persona Natural',
+        'organization' => 'Organización/Empresa',
+    ];
+
+    /**
+     * Las 9 comunidades de la asociación de agua
      */
     const COMMUNITIES = [
         'La Pandeadura',
@@ -23,6 +31,7 @@ class Owner extends Model
         'San Francisco',
         'San Rafael',
         'San Rafael (Los Pinos)',
+        'San Rafael (Los Pinos Cantarera)',
     ];
 
     /**
@@ -37,6 +46,7 @@ class Owner extends Model
         'San Francisco' => 'green',
         'San Rafael' => 'blue',
         'San Rafael (Los Pinos)' => 'cyan',
+        'San Rafael (Los Pinos Cantarera)' => 'teal',
     ];
 
     /**
@@ -46,7 +56,9 @@ class Owner extends Model
      */
     protected $fillable = [
         'name',
+        'owner_type',
         'dui',
+        'tax_id',
         'phone',
         'email',
         'address',
@@ -69,7 +81,55 @@ class Owner extends Model
      */
     public function getFormattedDuiAttribute(): ?string
     {
-        return formatDui($this->dui);
+        if (!$this->dui) {
+            return null;
+        }
+        
+        // DUI: 8 dígitos + 1 verificador (12345678-9)
+        if (strlen($this->dui) === 9) {
+            return substr($this->dui, 0, 8) . '-' . substr($this->dui, 8, 1);
+        }
+        
+        return $this->dui;
+    }
+
+    /**
+     * Accessor para obtener el NIT formateado
+     *
+     * @return string|null
+     */
+    public function getFormattedTaxIdAttribute(): ?string
+    {
+        if (!$this->tax_id) {
+            return null;
+        }
+        
+        // Remover cualquier guion existente
+        $clean = str_replace('-', '', $this->tax_id);
+        
+        // NIT: 0210-090676-001-4 (formato: 4-6-3-1)
+        if (strlen($clean) === 14) {
+            return substr($clean, 0, 4) . '-' . 
+                   substr($clean, 4, 6) . '-' . 
+                   substr($clean, 10, 3) . '-' . 
+                   substr($clean, 13, 1);
+        }
+        
+        return $this->tax_id;
+    }
+
+    /**
+     * Accessor para obtener la identificación formateada según el tipo
+     *
+     * @return string|null
+     */
+    public function getFormattedIdentificationAttribute(): ?string
+    {
+        if ($this->owner_type === 'organization') {
+            return $this->formatted_tax_id;
+        }
+        
+        return $this->formatted_dui;
     }
 
     /**
@@ -79,11 +139,15 @@ class Owner extends Model
      */
     public function getFormattedPhoneAttribute(): ?string
     {
-        return formatPhone($this->phone);
+        if (!$this->phone || strlen($this->phone) !== 8) {
+            return $this->phone;
+        }
+        
+        return substr($this->phone, 0, 4) . '-' . substr($this->phone, 4, 4);
     }
 
     /**
-     * Scope para buscar propietarios por nombre o DUI
+     * Scope para buscar propietarios por nombre, DUI o NIT
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string|null $search
@@ -95,12 +159,13 @@ class Owner extends Model
             return $query;
         }
 
-        // Remover guiones del término de búsqueda para DUI
+        // Remover guiones del término de búsqueda para DUI/NIT
         $searchClean = str_replace('-', '', $search);
 
         return $query->where(function ($q) use ($search, $searchClean) {
             $q->where('name', 'like', "%{$search}%")
-              ->orWhere('dui', 'like', "%{$searchClean}%");
+              ->orWhere('dui', 'like', "%{$searchClean}%")
+              ->orWhere('tax_id', 'like', "%{$searchClean}%");
         });
     }
 

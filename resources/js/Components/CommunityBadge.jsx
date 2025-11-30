@@ -12,6 +12,7 @@
  * @property {string} 'San Francisco' - Color verde.
  * @property {string} 'San Rafael' - Color azul.
  * @property {string} 'San Rafael (Los Pinos)' - Color cian.
+ * @property {string} 'San Rafael (Los Pinos Cantarera)' - Color teal.
  */
 const COMMUNITY_COLORS = {
     'La Pandeadura': 'bg-yellow-500',
@@ -22,6 +23,7 @@ const COMMUNITY_COLORS = {
     'San Francisco': 'bg-green-500',
     'San Rafael': 'bg-blue-500',
     'San Rafael (Los Pinos)': 'bg-cyan-500',
+    'San Rafael (Los Pinos Cantarera)': 'bg-teal-500',
 };
 
 export default function CommunityBadge({ community, size = 'md' }) {
